@@ -9,6 +9,9 @@
 #### 文本操作
 <https://github.com/cnlesscode/gotool/tree/main/gstring>
 
+#### 分词工具
+<https://github.com/cnlesscode/gotool/tree/main/nlp>
+
 #### 文件及文件夹
 <https://github.com/cnlesscode/gotool/tree/main/gfs>
 

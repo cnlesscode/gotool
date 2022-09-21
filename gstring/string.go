@@ -112,6 +112,7 @@ func AnyToString(value interface{}) string {
 	return key
 }
 
+// 去除标点
 func StripPunctuation(str string) string {
 	reg, err := regexp.Compile("[\\s\\n\\t\\-,\\.\\?\\!\"@，。'、？！\\:：“”；()（）；{}【】_《》~\\*\\<\\>/\\|\\-\\+\\=\\&\\^\\%\\#\\`\\;$￥‘’〉〈…＞＜＠＃＄％︿＆＊＋～｜［］·｛｝,\\[\\]]")
 	if err == nil {
