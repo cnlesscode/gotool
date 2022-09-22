@@ -109,6 +109,11 @@ func Remove(name string) {
 	})
 }
 
+// 删除指定缓存
+func Delete(key string) {
+	MapCacher.Delete(key)
+}
+
 // 清空
 func Clear() {
 	MapCacher = sync.Map{}
