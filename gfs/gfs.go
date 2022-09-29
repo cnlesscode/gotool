@@ -1,7 +1,6 @@
 package gfs
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -76,7 +75,6 @@ func CopyDir(src string, dst string) error {
 	list, err := ioutil.ReadDir(src)
 	if err == nil {
 		for _, file := range list {
-			fmt.Printf("filepath.Join(src, file.Name()): %v\n", filepath.Join(src, file.Name()))
 			CopyDir(filepath.Join(src, file.Name()), filepath.Join(dst, file.Name()))
 		}
 	}
