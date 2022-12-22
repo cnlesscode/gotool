@@ -24,7 +24,7 @@ func main() {
 		// 允许的扩展名
 		uploader.AllowExeNames = "jpg,gif,png"
 		// 目标文件夹
-		uploader.TargetDir = "./static/images/"
+		uploader.TargetDir = "./staticg/images/"
 		// 文件夹命名规则
 		uploader.DirNamingRule = "month"
 		// 文件命名规则

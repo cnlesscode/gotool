@@ -68,13 +68,13 @@ func (m *Upload) Run(ctx *gin.Context) (error, string) {
 	if m.DirNamingRule == "" {
 		uploadTargetDir = m.TargetDir + "/"
 	} else if m.DirNamingRule == "year" {
-		uploadTargetDir = "./static/images/" + time.Now().Format("2006") + "/"
+		uploadTargetDir = m.TargetDir + time.Now().Format("2006") + "/"
 	} else if m.DirNamingRule == "month" {
-		uploadTargetDir = "./static/images/" + time.Now().Format("2006-01") + "/"
+		uploadTargetDir = m.TargetDir + time.Now().Format("2006-01") + "/"
 	} else if m.DirNamingRule == "day" {
-		uploadTargetDir = "./static/images/" + time.Now().Format("2006-01-02") + "/"
+		uploadTargetDir = m.TargetDir + time.Now().Format("2006-01-02") + "/"
 	} else {
-		uploadTargetDir = "./static/images/" + time.Now().Format("2006-01") + "/"
+		uploadTargetDir = m.TargetDir + time.Now().Format("2006-01") + "/"
 	}
 	if !gfs.DirExists(uploadTargetDir) {
 		err = gfs.MakeDir(uploadTargetDir)
