@@ -7,14 +7,28 @@ import (
 
 // Time stamp to date time
 func TimeStampToDatatime(timeStamp int64) string {
-	tm := time.Unix(timeStamp, 0)
+	tm := time.Now()
+	if timeStamp != -1 {
+		tm = time.Unix(timeStamp, 0)
+	}
 	return tm.Format("2006-01-02 15:04:05")
+}
+
+// Time stamp to date time and format
+func TimeStampToDatatimeFormat(timeStamp int64, format string) string {
+	tm := time.Now()
+	if timeStamp != -1 {
+		tm = time.Unix(timeStamp, 0)
+	}
+	return tm.Format(format)
 }
 
 // Time stamp to slice [] string
 func TimeStampToDatatimeSlice(timeStamp int64) []string {
-	tm := time.Unix(timeStamp, 0)
-	tm.Format("2006-01-02 15:04:05")
+	tm := time.Now()
+	if timeStamp != -1 {
+		tm = time.Unix(timeStamp, 0)
+	}
 	return []string{
 		tm.Format("2006"),
 		tm.Format("01"),
