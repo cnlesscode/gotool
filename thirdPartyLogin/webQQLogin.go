@@ -26,7 +26,7 @@ func init() {
 }
 
 // 解析返回数据
-func WebQQLoginGetUser(ctx *gin.Context) (map[string]any, error) {
+func WebQQLoginGetUser(ctx *gin.Context, session sessions.Session) (map[string]any, error) {
 	// 检查返回数据
 	code := ctx.Query("code")
 	if code == "" {
@@ -38,7 +38,6 @@ func WebQQLoginGetUser(ctx *gin.Context) (map[string]any, error) {
 	}
 
 	// 检查 state
-	session := sessions.Default(ctx)
 	stateInSession := session.Get("WebQQLoginStateCode")
 	if stateInSession != state {
 		return nil, errors.New("登陆状态数据错误")
@@ -122,7 +121,7 @@ func WebQQLoginGetOpenId(token string, code string) (string, error) {
 }
 
 // 跳转到 QQ 登陆
-func WebQQLogin(ctx *gin.Context) {
+func WebQQLogin(ctx *gin.Context, session sessions.Session) {
 	// 组合 url
 	params := url.Values{}
 	params.Add("response_type", "code")
@@ -130,7 +129,6 @@ func WebQQLogin(ctx *gin.Context) {
 	// 生成随机码
 	randCode := WebQQLoginSets["StatePrefix"] + random.UUID()
 	// 利用 session 记录 state
-	session := sessions.Default(ctx)
 	session.Set("WebQQLoginStateCode", randCode)
 	session.Save()
 	params.Add("state", randCode)
