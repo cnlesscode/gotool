@@ -19,10 +19,10 @@ var WebQQLoginSets map[string]string
 
 func init() {
 	WebQQLoginSets = make(map[string]string)
-	WebQQLoginSets["AppId"] = config.Ini.Section("QQLogin").Key("AppId").String()
-	WebQQLoginSets["AppKey"] = config.Ini.Section("QQLogin").Key("AppKey").String()
-	WebQQLoginSets["RedirectURI"] = config.Ini.Section("QQLogin").Key("RedirectURI").String()
-	WebQQLoginSets["StatePrefix"] = config.Ini.Section("QQLogin").Key("StatePrefix").String()
+	WebQQLoginSets["AppId"] = config.Ini.Section("WebQQLogin").Key("AppId").String()
+	WebQQLoginSets["AppKey"] = config.Ini.Section("WebQQLogin").Key("AppKey").String()
+	WebQQLoginSets["RedirectURI"] = config.Ini.Section("WebQQLogin").Key("RedirectURI").String()
+	WebQQLoginSets["StatePrefix"] = config.Ini.Section("WebQQLogin").Key("StatePrefix").String()
 }
 
 // 解析返回数据
