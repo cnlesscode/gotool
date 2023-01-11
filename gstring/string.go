@@ -2,7 +2,6 @@ package gstring
 
 import (
 	"encoding/json"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -117,8 +116,6 @@ func StripPunctuation(str string) string {
 	reg, err := regexp.Compile("[\\s\\n\\t\\-,\\.\\?\\!\"@，。'、？！\\:：“”；()（）；{}【】_《》~\\*\\<\\>/\\|\\-\\+\\=\\&\\^\\%\\#\\`\\;$￥‘’〉〈…＞＜＠＃＄％︿＆＊＋～｜［］·｛｝,\\[\\]]")
 	if err == nil {
 		return reg.ReplaceAllString(str, "")
-	} else {
-		fmt.Printf("err.Error(): %v\n", err.Error())
 	}
 	return str
 }

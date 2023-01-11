@@ -89,14 +89,12 @@ func WebWXLoginBack(ctx *gin.Context, session sessions.Session) (WebWXUserInfo, 
 	if webWXToken.Errcode > 0 {
 		return webWXUserInfo, errors.New("登录失败 Error_100006")
 	}
-	fmt.Printf("webWXToken: %v\n", webWXToken)
 
 	// 通过access_token调用接口 获取用户个人信息
 	params2 := url.Values{}
 	params2.Add("access_token", webWXToken.AccessToken)
 	params2.Add("openid", webWXToken.Openid)
 	loginURL = fmt.Sprintf("%s?%s", "https://api.weixin.qq.com/sns/userinfo", params2.Encode())
-	fmt.Printf("loginURL: %v\n", loginURL)
 	// https://api.weixin.qq.com/sns/userinfo?access_token=***&openid=***
 	response2, err := http.Get(loginURL)
 	if err != nil {
@@ -119,7 +117,6 @@ func WebWXLoginBack(ctx *gin.Context, session sessions.Session) (WebWXUserInfo, 
 	if webWXUserInfo.Errcode > 0 {
 		return webWXUserInfo, errors.New("登录失败 Error_100008")
 	}
-	fmt.Printf("webWXUserInfo: %v\n", webWXUserInfo)
 	return webWXUserInfo, nil
 }
 
