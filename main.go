@@ -3,47 +3,30 @@ package main
 import (
 	"fmt"
 
-	"github.com/cnlesscode/gotool/thirdPartyLogin"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-gonic/gin"
+	"github.com/cnlesscode/gotool/db"
 )
 
+type Students struct {
+	Id      int    `gorm:"column:st_id;primaryKey"`
+	ClassId int    `gorm:"column:st_class_id" validate:"gt=0"`
+	Name    string `gorm:"column:st_name" validate:"min=3"`
+	Age     int    `gorm:"column:st_age" validate:"gt=10"`
+	AddTime int    `gorm:"column:st_add_time"`
+}
+
 func main() {
+	dbObj := db.Init()
+	// where 条件组合演示
+	whereMap := map[string][]any{
+		"st_id":   {"", ">", 265520},
+		"st_name": {"and", "like", "%张%"},
+	}
+	whereSql, whereVal := db.MapToWhere(whereMap)
+	fmt.Printf("whereSql: %v\n", whereSql)
+	fmt.Printf("whereVal: %v\n", whereVal)
+	// 查询演示
 
-	r := gin.Default()
-
-	// 开启 session
-	store := cookie.NewStore([]byte("pwd..."))
-	r.Use(sessions.Sessions("WESSESSION", store))
-
-	// 跳转到微信登录页面
-	r.GET("/WebWXLogin", func(ctx *gin.Context) {
-		session := sessions.Default(ctx)
-		thirdPartyLogin.WebWXLogin(ctx, session)
-	})
-	// 授权登录后返回页面
-	r.GET("/WXLogin/Back", func(ctx *gin.Context) {
-		session := sessions.Default(ctx)
-		webWXUserInfo, err := thirdPartyLogin.WebWXLoginBack(ctx, session)
-		if err != nil {
-			println("登录失败 : " + err.Error())
-		} else {
-			fmt.Printf("res: %v\n", webWXUserInfo)
-			// 此处已经获取到用户的 openid、Unionid、HeadImgUrl 等数据
-			// 结构体格式如下 :
-			// type WebWXUserInfo struct {
-			// 	HeadImgUrl string `json:"headimgurl"`
-			// 	Openid     string `json:"openid"`
-			// 	Unionid    string `json:"unionid"`
-			// 	Nickname   string `json:"nickname"`
-			// 	Errcode    int    `json:"errcode"`
-			// }
-			// 利用上面的数据配合数据库，继续完成后续的用户登陆逻辑即可
-		}
-	})
-
-	// 监听指定端口
-	r.Run(":80")
-
+	data := make([]Students, 0)
+	dbObj.Where(whereSql, whereVal...).Limit(10).Find(&data)
+	fmt.Printf("data: %v\n", data)
 }

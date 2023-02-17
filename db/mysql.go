@@ -1,6 +1,8 @@
 package db
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/cnlesscode/gotool/config"
@@ -71,4 +73,15 @@ func Init(configName ...string) *gorm.DB {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	return GoToolDBMap[configName[0]]
+}
+
+// 将 map 对象转换为 sql 条件
+func MapToWhere(mapData map[string][]any) (string, []any) {
+	var whereSql = make([]string, 0)
+	var whereVal = make([]any, 0)
+	for k, item := range mapData {
+		whereSql = append(whereSql, fmt.Sprintf("%v `%v` %v ?", item[0], k, item[1]))
+		whereVal = append(whereVal, item[2])
+	}
+	return strings.Join(whereSql, " "), whereVal
 }
