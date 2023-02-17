@@ -80,7 +80,7 @@ func MapToWhere(mapData map[string][]any) (string, []any) {
 	var whereSql = make([]string, 0)
 	var whereVal = make([]any, 0)
 	for k, item := range mapData {
-		whereSql = append(whereSql, fmt.Sprintf("%v `%v` %v ?", item[0], k, item[1]))
+		whereSql = append(whereSql, fmt.Sprintf("%v %v %v ?", item[0], k, item[1]))
 		whereVal = append(whereVal, item[2])
 	}
 	return strings.Join(whereSql, " "), whereVal
