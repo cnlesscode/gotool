@@ -14,24 +14,25 @@ type AliOSS struct {
 	BaseUrl         string
 }
 
-// Remove AliOSS File
-func (aliOSS *AliOSS) RemoveOSSFile(fileUrl string, removeLocalFile bool) error {
+func (aliOSS *AliOSS) InitClient() (*oss.Client, error) {
+	client, err := oss.New(aliOSS.Endpoint, aliOSS.AccessKeyId, aliOSS.AccessKeySecret)
+	return client, err
+}
 
+// Remove AliOSS File
+func (aliOSS *AliOSS) RemoveFile(fileUrl string, removeLocalFile bool) error {
 	if removeLocalFile {
 		os.Remove(fileUrl)
 	}
-
 	if aliOSS.BaseUrl != "/" {
-		client, err := oss.New(aliOSS.Endpoint, aliOSS.AccessKeyId, aliOSS.AccessKeySecret)
+		client, err := aliOSS.InitClient()
 		if err != nil {
 			return err
 		}
-
 		bucket, err := client.Bucket(aliOSS.BucketName)
 		if err != nil {
 			return err
 		}
-
 		fileUrlAliOss := ""
 		if fileUrl[0:2] == "./" {
 			fileUrlAliOss = fileUrl[2:]
@@ -43,27 +44,22 @@ func (aliOSS *AliOSS) RemoveOSSFile(fileUrl string, removeLocalFile bool) error 
 			return err
 		}
 	}
-
 	return nil
 }
 
 // upload a file to aliOSS
-func (aliOSS *AliOSS) FileToOSS(fileUrl string) error {
-
+func (aliOSS *AliOSS) UploadFile(fileUrl string) error {
 	if aliOSS.BaseUrl == "/" {
 		return nil
 	}
-
-	client, err := oss.New(aliOSS.Endpoint, aliOSS.AccessKeyId, aliOSS.AccessKeySecret)
+	client, err := aliOSS.InitClient()
 	if err != nil {
 		return err
 	}
-
 	bucket, err := client.Bucket(aliOSS.BucketName)
 	if err != nil {
 		return err
 	}
-
 	fileUrlAliOss := ""
 	if fileUrl[0:2] == "./" {
 		fileUrlAliOss = fileUrl[2:]
@@ -74,6 +70,5 @@ func (aliOSS *AliOSS) FileToOSS(fileUrl string) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
