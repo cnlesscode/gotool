@@ -7,20 +7,49 @@ import (
 	"strings"
 )
 
-// First Upper
-func FirstUpper(s string) string {
-	if s == "" {
+// 首字母大写
+func FirstUpper(str string) string {
+	if str == "" {
 		return ""
 	}
-	return strings.ToUpper(s[:1]) + s[1:]
+	str = strings.ToLower(str)
+	return strings.ToUpper(str[:1]) + str[1:]
 }
 
-// First Lower
+// 首字母大写 多个单词
+func FirstUpperAll(str string, removeSpace bool) string {
+	reg := regexp.MustCompile("[ _]")
+	strs := reg.Split(str, -1)
+	for k, v := range strs {
+		strs[k] = FirstUpper(strings.ToLower(v))
+	}
+	if removeSpace {
+		return strings.Join(strs, "")
+	} else {
+		return strings.Join(strs, " ")
+	}
+}
+
+// 首字母小写
 func FirstLower(s string) string {
 	if s == "" {
 		return ""
 	}
 	return strings.ToLower(s[:1]) + s[1:]
+}
+
+// 全部小写
+func LowerAll(str string, removeSpace bool) string {
+	reg := regexp.MustCompile("[ _]")
+	strs := reg.Split(str, -1)
+	for k, v := range strs {
+		strs[k] = strings.ToLower(v)
+	}
+	if removeSpace {
+		return strings.Join(strs, "")
+	} else {
+		return strings.Join(strs, " ")
+	}
 }
 
 // Find Images From Html

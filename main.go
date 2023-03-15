@@ -1,5 +1,8 @@
 package main
 
+import "github.com/cnlesscode/gotool/gstring"
+
 func main() {
-	println("welcome to use goTool ...")
+	str := "welcome to use goTool .."
+	println(gstring.LowerAll(str, false))
 }
