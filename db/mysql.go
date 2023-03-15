@@ -37,7 +37,7 @@ func Init(configName ...string) *gorm.DB {
 	Dsn := config.Ini.Section(configName[0]).Key("User").String() + ":" +
 		config.Ini.Section(configName[0]).Key("Password").String() + "@" +
 		config.Ini.Section(configName[0]).Key("Host").String() + "/" +
-		config.Ini.Section(configName[0]).Key("TableName").String() + "?charset=" +
+		config.Ini.Section(configName[0]).Key("DatabaseName").String() + "?charset=" +
 		config.Ini.Section(configName[0]).Key("Charset").String()
 	MaxOpenConns, _ := config.Ini.Section(configName[0]).Key("MaxOpenConns").Int()
 	MaxIdleConns, _ := config.Ini.Section(configName[0]).Key("MaxIdleConns").Int()
