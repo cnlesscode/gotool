@@ -3,7 +3,7 @@ package gimage
 import (
 	"encoding/base64"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"regexp"
@@ -26,7 +26,7 @@ func Base64ToImage(data string, targetDir string, imageName string) (string, err
 	imageName = imageName + "." + res[1]
 	data = strings.Replace(data, res[0], "", -1)
 	bt, _ := base64.StdEncoding.DecodeString(data)
-	err := ioutil.WriteFile(imageName, bt, 0777)
+	err := os.WriteFile(imageName, bt, 0777)
 	if err != nil {
 		return "", err
 	} else {
@@ -40,7 +40,7 @@ func ImageToBase64(imageUri string, removeImage bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	imgByte, err := ioutil.ReadAll(file)
+	imgByte, err := io.ReadAll(file)
 	file.Close()
 	if err != nil {
 		return "", err

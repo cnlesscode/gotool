@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -70,7 +70,7 @@ func WebWXLoginBack(ctx *gin.Context, session sessions.Session) (WebWXUserInfo, 
 		return webWXUserInfo, err
 	}
 	defer response.Body.Close()
-	bs, _ := ioutil.ReadAll(response.Body)
+	bs, _ := io.ReadAll(response.Body)
 	// 成功
 	// {
 	// "access_token":"ACCESS_TOKEN",
@@ -101,7 +101,7 @@ func WebWXLoginBack(ctx *gin.Context, session sessions.Session) (WebWXUserInfo, 
 		return webWXUserInfo, err
 	}
 	defer response2.Body.Close()
-	bs2, _ := ioutil.ReadAll(response2.Body)
+	bs2, _ := io.ReadAll(response2.Body)
 	// 成功 {
 	// "openid":"***",
 	// "nickname":"***",

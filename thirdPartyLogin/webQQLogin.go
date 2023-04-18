@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -66,7 +66,7 @@ func WebQQLoginGetUser(ctx *gin.Context, session sessions.Session) (map[string]a
 		return nil, err
 	}
 	defer resp.Body.Close()
-	bs, _ := ioutil.ReadAll(resp.Body)
+	bs, _ := io.ReadAll(resp.Body)
 	mapUser := make(map[string]any)
 	err = json.Unmarshal(bs, &mapUser)
 	if err != nil {
@@ -91,7 +91,7 @@ func WebQQLoginGetToken(code string) (map[string]string, error) {
 		return nil, err
 	}
 	defer response.Body.Close()
-	bs, _ := ioutil.ReadAll(response.Body)
+	bs, _ := io.ReadAll(response.Body)
 	body := string(bs)
 	if strings.Contains(body, "access_token") {
 		resultMap := ConvertToMap(body)
@@ -107,7 +107,7 @@ func WebQQLoginGetOpenId(token string, code string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	bs, _ := ioutil.ReadAll(resp.Body)
+	bs, _ := io.ReadAll(resp.Body)
 	body := string(bs)
 	// callback( {"client_id":"YOUR_APPID","openid":"YOUR_OPENID"} );
 	body = strings.Replace(body, "callback(", "", -1)

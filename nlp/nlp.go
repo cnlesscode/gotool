@@ -1,7 +1,7 @@
 package nlp
 
 import (
-	"io/ioutil"
+	"os"
 	"strings"
 	"unicode/utf8"
 
@@ -14,7 +14,7 @@ var NPLNotWordsString string = ""
 
 func init() {
 	Seg.LoadDict("./resources/dict/zh/s_1.txt")
-	NPLNotWords, err := ioutil.ReadFile("./resources/dict/nplNotWords.txt")
+	NPLNotWords, err := os.ReadFile("./resources/dict/nplNotWords.txt")
 	if err == nil {
 		NPLNotWordsString = string(NPLNotWords) + "\t\n"
 	}

@@ -2,7 +2,6 @@ package gfs
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -72,7 +71,7 @@ func CopyDir(src string, dst string) error {
 		return CopyFile(src, dst)
 	}
 	MakeDir(dst)
-	list, err := ioutil.ReadDir(src)
+	list, err := os.ReadDir(src)
 	if err == nil {
 		for _, file := range list {
 			CopyDir(filepath.Join(src, file.Name()), filepath.Join(dst, file.Name()))
@@ -116,7 +115,7 @@ func ModifyTime(path string) (int64, error) {
 
 // Read file
 func ReadFile(fileUrl string) (string, error) {
-	content, err := ioutil.ReadFile(fileUrl)
+	content, err := os.ReadFile(fileUrl)
 	if err != nil {
 		return "", err
 	} else {
@@ -129,7 +128,7 @@ func WriteContentToFile(content string, dir string, fileUrl string) error {
 	if !DirExists(dir) {
 		MakeDir(dir)
 	}
-	return ioutil.WriteFile(dir+fileUrl, []byte(content), 0777)
+	return os.WriteFile(dir+fileUrl, []byte(content), 0777)
 }
 
 // Append Content To File
@@ -139,7 +138,7 @@ func AppendContentToFile(content string, fileUrl string) error {
 		return err
 	} else {
 		content = contentOld + content
-		return ioutil.WriteFile(fileUrl, []byte(content), 0777)
+		return os.WriteFile(fileUrl, []byte(content), 0777)
 	}
 }
 
@@ -150,7 +149,7 @@ func PrependContentToFile(content string, fileUrl string) error {
 		return err
 	} else {
 		content = content + contentOld
-		return ioutil.WriteFile(fileUrl, []byte(content), 0777)
+		return os.WriteFile(fileUrl, []byte(content), 0777)
 	}
 }
 

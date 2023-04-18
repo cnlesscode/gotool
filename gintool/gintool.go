@@ -1,7 +1,6 @@
 package gintool
 
 import (
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -18,8 +17,7 @@ func Download(ctx *gin.Context, fileUrl string, fileName string, remove bool) {
 		extensionName := gfs.GetExtension(fileUrl)
 		fileName = fileName + "." + extensionName
 	}
-	//使用ioutil包读取文件
-	b, err := ioutil.ReadFile(fileUrl)
+	b, err := os.ReadFile(fileUrl)
 	if err == nil {
 		rw := ctx.Writer
 		header := rw.Header()
