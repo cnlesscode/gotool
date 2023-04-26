@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/cnlesscode/gotool/gstring"
-	"github.com/cnlesscode/gotool/iniReader"
 	"github.com/cnlesscode/gotool/slice"
 )
 
@@ -23,14 +22,11 @@ func InitCacheName(keyName string, cacheParameters ...any) string {
 
 var MapCacher sync.Map
 var MapCacherExpiration sync.Map
-var GCIntervalTime int64
 
 // 初始化
-func init() {
-	iniReader := iniReader.New("./config.ini")
-	GCIntervalTime = iniReader.Int64("MapCache", "GCIntervalTime")
-	if GCIntervalTime < 600 {
-		GCIntervalTime = 600
+func Start(GCIntervalTime int64) {
+	if GCIntervalTime < 1 {
+		GCIntervalTime = 1
 	}
 	go (func() {
 		// 缓存有效期检查
