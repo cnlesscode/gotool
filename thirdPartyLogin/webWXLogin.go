@@ -8,21 +8,17 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/cnlesscode/gotool/config"
 	"github.com/cnlesscode/gotool/gmd5"
 	"github.com/cnlesscode/gotool/random"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
-var WebWXLoginSets map[string]string
-
-func init() {
-	WebWXLoginSets = make(map[string]string)
-	WebWXLoginSets["AppId"] = config.Ini.Section("WebWXLogin").Key("AppId").String()
-	WebWXLoginSets["AppSecret"] = config.Ini.Section("WebWXLogin").Key("AppSecret").String()
-	WebWXLoginSets["RedirectURI"] = config.Ini.Section("WebWXLogin").Key("RedirectURI").String()
-	WebWXLoginSets["StatePrefix"] = config.Ini.Section("WebWXLogin").Key("StatePrefix").String()
+type WebWXLogin struct {
+	AppId       string
+	AppSecret   string
+	RedirectURI string
+	StatePrefix string
 }
 
 type WebWXToken struct {
@@ -41,7 +37,7 @@ type WebWXUserInfo struct {
 }
 
 // 授权后返回处理
-func WebWXLoginBack(ctx *gin.Context, session sessions.Session) (WebWXUserInfo, error) {
+func (m *WebWXLogin) Back(ctx *gin.Context, session sessions.Session) (WebWXUserInfo, error) {
 	webWXUserInfo := WebWXUserInfo{}
 	// 检查返回数据
 	code := ctx.Query("code")
@@ -60,10 +56,10 @@ func WebWXLoginBack(ctx *gin.Context, session sessions.Session) (WebWXUserInfo, 
 	// 通过 code 获取access_token
 	params := url.Values{}
 	params.Add("grant_type", "authorization_code")
-	params.Add("appid", WebWXLoginSets["AppId"])
-	params.Add("secret", WebWXLoginSets["AppSecret"])
+	params.Add("appid", m.AppId)
+	params.Add("secret", m.AppSecret)
 	params.Add("code", code)
-	params.Add("redirect_uri", WebQQLoginSets["RedirectURI"])
+	params.Add("redirect_uri", m.RedirectURI)
 	loginURL := fmt.Sprintf("%s?%s", "https://api.weixin.qq.com/sns/oauth2/access_token", params.Encode())
 	response, err := http.Get(loginURL)
 	if err != nil {
@@ -121,19 +117,19 @@ func WebWXLoginBack(ctx *gin.Context, session sessions.Session) (WebWXUserInfo, 
 }
 
 // 跳转到微信扫码登陆
-func WebWXLogin(ctx *gin.Context, session sessions.Session) {
+func (m *WebWXLogin) Login(ctx *gin.Context, session sessions.Session) {
 	// 组合 url
 	params := url.Values{}
 	params.Add("response_type", "code")
-	params.Add("appid", WebWXLoginSets["AppId"])
+	params.Add("appid", m.AppId)
 	params.Add("scope", "snsapi_login")
 	// 生成随机码
-	randCode := gmd5.Md5(WebWXLoginSets["StatePrefix"] + random.UUID())
+	randCode := gmd5.Md5(m.StatePrefix + random.UUID())
 	// 利用 session 记录 state
 	session.Set("WebWXLoginStateCode", randCode)
 	session.Save()
 	params.Add("state", randCode)
-	str := fmt.Sprintf("%s&redirect_uri=%s", params.Encode(), WebWXLoginSets["RedirectURI"])
+	str := fmt.Sprintf("%s&redirect_uri=%s", params.Encode(), m.RedirectURI)
 	loginURL := fmt.Sprintf("%s?%s", "https://open.weixin.qq.com/connect/qrconnect", str)
 	// 重定向到 QQ 互联
 	ctx.Redirect(302, loginURL)

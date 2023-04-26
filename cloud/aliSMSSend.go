@@ -5,32 +5,31 @@ import (
 	dysmsapi "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
-	iniConfig "github.com/cnlesscode/gotool/config"
 )
 
 type AliSMS struct {
 	AccessKeyId     string
 	AccessKeySecret string
+	Endpoint        string
+	SignName        string
+	TemplateCode    string
+	TemplateParam   string
 }
 
-var AliSMSAccessKeyId *string = tea.String(iniConfig.Ini.Section("AliSMS").Key("AccessKeyId").String())
-var AliSMSAccessKeySecret *string = tea.String(iniConfig.Ini.Section("AliSMS").Key("AccessKeySecret").String())
-var AliSMSEndpoint *string = tea.String(iniConfig.Ini.Section("AliSMS").Key("Endpoint").String())
-
-func (m *AliSMS) Send(PhoneNumbers string, SignName string, TemplateCode string, TemplateParam string) error {
+func (m *AliSMS) Send(PhoneNumbers string, TemplateParam string) error {
 	config := &openapi.Config{
-		AccessKeyId:     AliSMSAccessKeyId,
-		AccessKeySecret: AliSMSAccessKeySecret,
+		AccessKeyId:     &m.AccessKeyId,
+		AccessKeySecret: &m.AccessKeySecret,
 	}
-	config.Endpoint = tea.String(iniConfig.Ini.Section("AliSMS").Key("Endpoint").String())
+	config.Endpoint = tea.String(m.Endpoint)
 	client, err := dysmsapi.NewClient(config)
 	if err != nil {
 		return err
 	}
 	sendSmsRequest := &dysmsapi.SendSmsRequest{
 		PhoneNumbers:  tea.String(PhoneNumbers),
-		SignName:      tea.String(SignName),
-		TemplateCode:  tea.String(TemplateCode),
+		SignName:      tea.String(m.SignName),
+		TemplateCode:  tea.String(m.TemplateCode),
 		TemplateParam: tea.String(TemplateParam),
 	}
 	runtime := &util.RuntimeOptions{}

@@ -9,24 +9,20 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/cnlesscode/gotool/config"
 	"github.com/cnlesscode/gotool/random"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
-var WebQQLoginSets map[string]string
-
-func init() {
-	WebQQLoginSets = make(map[string]string)
-	WebQQLoginSets["AppId"] = config.Ini.Section("WebQQLogin").Key("AppId").String()
-	WebQQLoginSets["AppKey"] = config.Ini.Section("WebQQLogin").Key("AppKey").String()
-	WebQQLoginSets["RedirectURI"] = config.Ini.Section("WebQQLogin").Key("RedirectURI").String()
-	WebQQLoginSets["StatePrefix"] = config.Ini.Section("WebQQLogin").Key("StatePrefix").String()
+type WebQQLogin struct {
+	AppId       string
+	AppKey      string
+	RedirectURI string
+	StatePrefix string
 }
 
 // 解析返回数据
-func WebQQLoginGetUser(ctx *gin.Context, session sessions.Session) (map[string]any, error) {
+func (m *WebQQLogin) GetUser(ctx *gin.Context, session sessions.Session) (map[string]any, error) {
 	// 检查返回数据
 	code := ctx.Query("code")
 	if code == "" {
@@ -44,13 +40,13 @@ func WebQQLoginGetUser(ctx *gin.Context, session sessions.Session) (map[string]a
 	}
 
 	// 获取 token
-	token, err := WebQQLoginGetToken(code)
+	token, err := m.GetToken(code)
 	if err != nil {
 		return nil, err
 	}
 
 	// 获取 openid
-	openid, err := WebQQLoginGetOpenId(token["access_token"], code)
+	openid, err := m.GetOpenId(token["access_token"], code)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +55,7 @@ func WebQQLoginGetUser(ctx *gin.Context, session sessions.Session) (map[string]a
 	params := url.Values{}
 	params.Add("access_token", token["access_token"])
 	params.Add("openid", openid)
-	params.Add("oauth_consumer_key", WebQQLoginSets["AppId"])
+	params.Add("oauth_consumer_key", m.AppId)
 	uri := fmt.Sprintf("https://graph.qq.com/user/get_user_info?%s", params.Encode())
 	resp, err := http.Get(uri)
 	if err != nil {
@@ -78,13 +74,13 @@ func WebQQLoginGetUser(ctx *gin.Context, session sessions.Session) (map[string]a
 }
 
 // 获取 toen
-func WebQQLoginGetToken(code string) (map[string]string, error) {
+func (m *WebQQLogin) GetToken(code string) (map[string]string, error) {
 	params := url.Values{}
 	params.Add("grant_type", "authorization_code")
-	params.Add("client_id", WebQQLoginSets["AppId"])
-	params.Add("client_secret", WebQQLoginSets["AppKey"])
+	params.Add("client_id", m.AppId)
+	params.Add("client_secret", m.AppKey)
 	params.Add("code", code)
-	params.Add("redirect_uri", WebQQLoginSets["RedirectURI"])
+	params.Add("redirect_uri", m.RedirectURI)
 	loginURL := fmt.Sprintf("%s?%s", "https://graph.qq.com/oauth2.0/token", params.Encode())
 	response, err := http.Get(loginURL)
 	if err != nil {
@@ -101,7 +97,7 @@ func WebQQLoginGetToken(code string) (map[string]string, error) {
 }
 
 // 获取 openId
-func WebQQLoginGetOpenId(token string, code string) (string, error) {
+func (m *WebQQLogin) GetOpenId(token string, code string) (string, error) {
 	resp, err := http.Get("https://graph.qq.com/oauth2.0/me?access_token=" + token)
 	if err != nil {
 		return "", err
@@ -121,18 +117,18 @@ func WebQQLoginGetOpenId(token string, code string) (string, error) {
 }
 
 // 跳转到 QQ 登陆
-func WebQQLogin(ctx *gin.Context, session sessions.Session) {
+func (m *WebQQLogin) Login(ctx *gin.Context, session sessions.Session) {
 	// 组合 url
 	params := url.Values{}
 	params.Add("response_type", "code")
-	params.Add("client_id", WebQQLoginSets["AppId"])
+	params.Add("client_id", m.AppId)
 	// 生成随机码
-	randCode := WebQQLoginSets["StatePrefix"] + random.UUID()
+	randCode := m.StatePrefix + random.UUID()
 	// 利用 session 记录 state
 	session.Set("WebQQLoginStateCode", randCode)
 	session.Save()
 	params.Add("state", randCode)
-	str := fmt.Sprintf("%s&redirect_uri=%s", params.Encode(), WebQQLoginSets["RedirectURI"])
+	str := fmt.Sprintf("%s&redirect_uri=%s", params.Encode(), m.RedirectURI)
 	loginURL := fmt.Sprintf("%s?%s", "https://graph.qq.com/oauth2.0/authorize", str)
 	// 重定向到 QQ 互联
 	ctx.Redirect(302, loginURL)

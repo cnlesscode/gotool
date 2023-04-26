@@ -19,8 +19,6 @@ type TencentCOS struct {
 
 // 初始化客户端
 func (m *TencentCOS) InitClient() *cos.Client {
-	// 将 examplebucket-1250000000 和 COS_REGION 修改为用户真实的信息
-
 	u, _ := url.Parse(m.BucketURL)
 	b := &cos.BaseURL{BucketURL: u}
 	return cos.NewClient(b, &http.Client{
@@ -54,11 +52,9 @@ func (m *TencentCOS) UploadFile(fileUrl string) error {
 
 // 删除文件
 func (m *TencentCOS) RemoveFile(fileUrl string, removeLocalFile bool) error {
-
 	if removeLocalFile {
 		os.Remove(fileUrl)
 	}
-
 	if m.BaseUrl != "/" {
 		fileUrlAliOss := ""
 		if fileUrl[0:2] == "./" {
@@ -70,6 +66,5 @@ func (m *TencentCOS) RemoveFile(fileUrl string, removeLocalFile bool) error {
 		_, err := c.Object.Delete(context.Background(), fileUrlAliOss)
 		return err
 	}
-
 	return nil
 }
