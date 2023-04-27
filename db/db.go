@@ -23,7 +23,7 @@ func Start(dbConfigs map[string]map[string]string) {
 		if conf["RunMode"] == "dev" {
 			loggerType = logger.Info
 		} else {
-			loggerType = logger.Error
+			loggerType = logger.Silent
 		}
 		// 配置文件
 		options := &gorm.Config{
