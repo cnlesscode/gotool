@@ -148,3 +148,16 @@ func StripPunctuation(str string) string {
 	}
 	return str
 }
+
+// 格式化空格
+func FormatSpace(str string) string {
+	str = strings.Trim(str, " ")
+	// 将连续空格替换为一个
+	reg, _ := regexp.Compile(" {2,}")
+	return reg.ReplaceAllString(str, " ")
+}
+
+// 使用空格将字符串拆分为切片
+func StringToSliceBySpace(str string) []string {
+	return strings.Split(FormatSpace(str), " ")
+}
