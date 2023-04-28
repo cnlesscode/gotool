@@ -35,25 +35,27 @@ func SearchKwd(slice []NLPKwd, str string) int {
 }
 
 // 分词
-func Cut(content string) []NLPKwd {
+func Cut(content string) ([]NLPKwd, []string) {
 	kwds := make([]NLPKwd, 0)
+	kwdsString := make([]string, 0)
 	for _, v := range Seg.Slice(content, true) {
 		idxForNotRec := -1
 		if utf8.RuneCountInString(v) > 1 {
-			if NPLNotWordsString != "nil" {
+			if NPLNotWordsString != "" {
 				idxForNotRec = strings.Index(string(NPLNotWordsString), v)
 			}
 			if idxForNotRec == -1 {
 				idx := SearchKwd(kwds, v)
 				if idx == -1 {
 					kwds = append(kwds, NLPKwd{KeyWord: v, Count: 1})
+					kwdsString = append(kwdsString, v)
 				} else {
 					kwds[idx].Count++
 				}
 			}
 		}
 	}
-	return kwds
+	return kwds, kwdsString
 }
 
 type KeywordsForDB struct {
@@ -65,7 +67,7 @@ type KeywordsForDB struct {
 
 // 分词并保存到数据库
 func CutAndSave(content string, db *gorm.DB, tableName string, mid int) {
-	kwds := Cut(content)
+	kwds, _ := Cut(content)
 	for _, kwd := range kwds {
 		InserData := &KeywordsForDB{
 			Word:  kwd.KeyWord,
