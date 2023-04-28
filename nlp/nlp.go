@@ -38,7 +38,7 @@ func SearchKwd(slice []NLPKwd, str string) int {
 func Cut(content string) ([]NLPKwd, []string) {
 	kwds := make([]NLPKwd, 0)
 	kwdsString := make([]string, 0)
-	for _, v := range Seg.Slice(content, true) {
+	for _, v := range Seg.Slice(content, false) {
 		idxForNotRec := -1
 		if utf8.RuneCountInString(v) > 1 {
 			if NPLNotWordsString != "" {
