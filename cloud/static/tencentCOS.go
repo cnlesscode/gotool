@@ -1,4 +1,4 @@
-package cloud
+package static
 
 import (
 	"context"
@@ -10,15 +10,14 @@ import (
 )
 
 type TencentCOS struct {
-	BucketURL  string
-	ServiceURL string
-	SecretId   string
-	SecretKey  string
-	BaseUrl    string
+	BucketURL string
+	SecretId  string
+	SecretKey string
+	BaseUrl   string
 }
 
 // 初始化客户端
-func (m *TencentCOS) InitClient() *cos.Client {
+func (m TencentCOS) InitClient() *cos.Client {
 	u, _ := url.Parse(m.BucketURL)
 	b := &cos.BaseURL{BucketURL: u}
 	return cos.NewClient(b, &http.Client{
@@ -35,9 +34,6 @@ func (m *TencentCOS) InitClient() *cos.Client {
 
 // 上传文件
 func (m *TencentCOS) UploadFile(fileUrl string) error {
-	if m.BaseUrl == "/" {
-		return nil
-	}
 	c := m.InitClient()
 	// 通过本地文件上传对象
 	fileUrlAliOss := ""
@@ -55,16 +51,13 @@ func (m *TencentCOS) RemoveFile(fileUrl string, removeLocalFile bool) error {
 	if removeLocalFile {
 		os.Remove(fileUrl)
 	}
-	if m.BaseUrl != "/" {
-		fileUrlAliOss := ""
-		if fileUrl[0:2] == "./" {
-			fileUrlAliOss = fileUrl[2:]
-		} else {
-			fileUrlAliOss = fileUrl
-		}
-		c := m.InitClient()
-		_, err := c.Object.Delete(context.Background(), fileUrlAliOss)
-		return err
+	fileUrlAliOss := ""
+	if fileUrl[0:2] == "./" {
+		fileUrlAliOss = fileUrl[2:]
+	} else {
+		fileUrlAliOss = fileUrl
 	}
-	return nil
+	c := m.InitClient()
+	_, err := c.Object.Delete(context.Background(), fileUrlAliOss)
+	return err
 }
