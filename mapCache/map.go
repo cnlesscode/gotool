@@ -48,7 +48,7 @@ func Start(GCIntervalTime int64) {
 }
 
 // 获取变量 不存在则自动设置
-func Cache(keyName string, expiration int, cacheFunc CacheFunc, cacheParameters ...any) any {
+func Cache(keyName string, expiration int, cacheFunc CacheFunc, cacheParameters ...any) (any, error) {
 	var data any
 	var ok bool
 	var err error
@@ -69,17 +69,17 @@ func Cache(keyName string, expiration int, cacheFunc CacheFunc, cacheParameters 
 					if err == nil {
 						Set(keyName, expiration, data)
 					}
-					return data
+					return data, err
 				}
 			}
 		}
-		return data
+		return data, err
 	}
 	data, err = cacheFunc(cacheParameters...)
 	if err == nil {
 		Set(keyName, expiration, data)
 	}
-	return data
+	return data, err
 }
 
 // 设置缓存
