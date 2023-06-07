@@ -16,7 +16,7 @@ type CacheFunc func(args ...any) (any, error)
 // 组合缓存名称
 func InitCacheName(keyName string, cacheParameters ...any) string {
 	name := keyName + slice.ToString(cacheParameters, "")
-	name = gstring.StripPunctuation(name)
+	name = gstring.StripPunctuation(name, false)
 	return name
 }
 
