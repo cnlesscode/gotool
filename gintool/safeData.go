@@ -1,54 +1,50 @@
 package gintool
 
 import (
-	"bytes"
-	"io"
 	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SafePOST(ctx *gin.Context, newString string, needReplaceString ...string) {
+// 请求过滤
+func SafeRequest(ctx *gin.Context) {
+	// POST
 	if ctx.Request.Method == "POST" {
-		// 读取请求体中的POST数据
-		bodyBytes, err := io.ReadAll(ctx.Request.Body)
-		if err != nil {
-			ctx.Abort()
-			return
-		}
-		bodyString, err := url.QueryUnescape(string(bodyBytes))
-		if err != nil {
-			ctx.Abort()
-			return
-		}
-		for _, v := range needReplaceString {
-			bodyString = strings.ReplaceAll(bodyString, v, newString)
-			bodyString = strings.ReplaceAll(bodyString, v, newString)
-		}
-		ctx.Request.Body = io.NopCloser(bytes.NewReader([]byte(bodyString)))
+		SafePOST(ctx)
+	}
+	// GET
+	SafeQuery(ctx)
+}
+
+// POST 过滤
+func SafePOST(ctx *gin.Context) {
+	ctx.Request.ParseForm()
+	formMap := ctx.Request.PostForm
+	for k, item := range formMap {
+		safeString := strings.ReplaceAll(item[0], "<", "&lt;")
+		safeString = strings.ReplaceAll(safeString, ">", "&gt;")
+		ctx.Request.Form.Set(k, safeString)
 	}
 }
 
-func SafeQuery(ctx *gin.Context, newString string, needReplaceString ...string) {
+// GET 过滤
+func SafeQuery(ctx *gin.Context) {
 	if ctx.Request.URL.RawQuery == "" {
 		return
 	}
 	rawQuery, err := url.QueryUnescape(string(ctx.Request.URL.RawQuery))
 	if err != nil {
-		ctx.Abort()
 		return
 	}
-
-	for _, v := range needReplaceString {
-		rawQuery = strings.ReplaceAll(rawQuery, v, newString)
-	}
+	rawQuery = strings.ReplaceAll(rawQuery, "<", "&lt;")
+	rawQuery = strings.ReplaceAll(rawQuery, ">", "&gt;")
 	ctx.Request.URL.RawQuery = rawQuery
 }
 
-func SafeData(data string, newString string, needReplaceString ...string) string {
-	for _, v := range needReplaceString {
-		data = strings.ReplaceAll(data, v, newString)
-	}
+// 字符串 过滤
+func SafeData(data string) string {
+	data = strings.ReplaceAll(data, "<", "&lt;")
+	data = strings.ReplaceAll(data, ">", "&gt;")
 	return data
 }
