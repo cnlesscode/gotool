@@ -45,9 +45,15 @@ func Start(dbConfigs map[string]map[string]string) {
 		var DSN string = ""
 		var err error
 		if conf["DBType"] == "MySQL" {
+			host := ""
+			if conf["RunMode"] == "dev" {
+				host = conf["HostDev"]
+			} else {
+				host = conf["Host"]
+			}
 			DSN = conf["Username"] + ":" +
 				conf["Password"] + "@" +
-				"tcp(" + conf["Host"] + ":" + conf["Port"] + ")/" +
+				"tcp(" + host + ":" + conf["Port"] + ")/" +
 				conf["DatabaseName"] + "?charset=" +
 				conf["Charset"] + "&parseTime=True&loc=Local"
 			GoToolDBMap[k], err = gorm.Open(mysql.Open(DSN), options)
