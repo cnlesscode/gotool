@@ -5,10 +5,13 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
+var TimeoutSecond int = 15
+
 // 基础
-func Base(method string, uri string, data map[string]string, headers map[string]string) (*http.Request, error) {
+func Base(method string, uri string, data map[string]string, headers map[string]string) (string, error) {
 	urlData := url.Values{}
 	for k, v := range data {
 		urlData.Set(k, v)
@@ -26,81 +29,38 @@ func Base(method string, uri string, data map[string]string, headers map[string]
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		}
 	}
-	return req, err
+	if err != nil {
+		return "", err
+	}
+	client := &http.Client{Timeout: time.Second * time.Duration(TimeoutSecond)}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	respdata, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(respdata), nil
 }
 
 // GET 请求
 func GET(uri string, data map[string]string, headers map[string]string) (string, error) {
-	req, err := Base("GET", uri, data, headers)
-	if err != nil {
-		return "", err
-	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	respdata, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(respdata), nil
+	return Base("GET", uri, data, headers)
 }
 
 // POST 请求
 func POST(uri string, data map[string]string, headers map[string]string) (string, error) {
-	req, err := Base("POST", uri, data, headers)
-	if err != nil {
-		return "", err
-	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	respdata, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(respdata), nil
+	return Base("POST", uri, data, headers)
 }
 
 // PUT 请求
 func PUT(uri string, data map[string]string, headers map[string]string) (string, error) {
-	req, err := Base("PUT", uri, data, headers)
-	if err != nil {
-		return "", err
-	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	respdata, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(respdata), nil
+	return Base("PUT", uri, data, headers)
 }
 
 // PUT 请求
 func DELETE(uri string, data map[string]string, headers map[string]string) (string, error) {
-	req, err := Base("DELETE", uri, data, headers)
-	if err != nil {
-		return "", err
-	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	respdata, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(respdata), nil
+	return Base("DELETE", uri, data, headers)
 }
