@@ -26,7 +26,7 @@ var MapCacherExpiration sync.Map
 // 初始化
 func Start(GCIntervalTime int64) {
 	if GCIntervalTime < 1 {
-		GCIntervalTime = 1
+		GCIntervalTime = 180
 	}
 	go (func() {
 		// 缓存有效期检查
