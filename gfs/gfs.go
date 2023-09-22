@@ -133,13 +133,16 @@ func WriteContentToFile(content string, dir string, fileUrl string) error {
 
 // Append Content To File
 func AppendContentToFile(content string, fileUrl string) error {
-	contentOld, err := ReadFile(fileUrl)
+	file, err := os.OpenFile(fileUrl, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0777)
 	if err != nil {
 		return err
-	} else {
-		content = contentOld + content
-		return os.WriteFile(fileUrl, []byte(content), 0777)
 	}
+	defer file.Close()
+	_, err = file.WriteString(content)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Prepend Content To File
