@@ -8,28 +8,26 @@ import (
 )
 
 type Redis struct {
-	Client *redis.Client
+	Client        *redis.Client
+	Options       redis.Options
+	VarNamePrefix string
 }
 
-var redisOptions = &redis.Options{
-	Addr:     "",
-	Password: "", // 密码
-	DB:       0,  // 使用的库
-}
-
-var RedisVarNamePrefix = ""
-
-func InitRedis(Addr string, Password string, DB int, VarNamePrefix string) {
-	redisOptions.Addr = Addr
-	redisOptions.Password = Password
-	redisOptions.DB = DB
-	RedisVarNamePrefix = VarNamePrefix
+func Init(Addr string, Password string, DB int, varNamePrefix string) (m *Redis) {
+	return &Redis{
+		Options: redis.Options{
+			Addr:     Addr,
+			Password: Password,
+			DB:       DB,
+		},
+		VarNamePrefix: varNamePrefix,
+	}
 }
 
 // 初始化 redis 客户端
 func (m *Redis) InitRedisClient() {
 	// 初始化 redis 客户端
-	m.Client = redis.NewClient(redisOptions)
+	m.Client = redis.NewClient(&m.Options)
 }
 
 // 设置变量
@@ -39,7 +37,7 @@ func (m *Redis) Set(name string, value interface{}, expiration int64) error {
 	}
 	return m.Client.Set(
 		context.Background(),
-		RedisVarNamePrefix+name,
+		m.VarNamePrefix+name,
 		value,
 		time.Second*time.Duration(expiration),
 	).Err()
@@ -52,7 +50,7 @@ func (m *Redis) Get(name string) (string, error) {
 	}
 	return m.Client.Get(
 		context.Background(),
-		RedisVarNamePrefix+name,
+		m.VarNamePrefix+name,
 	).Result()
 }
 
@@ -80,7 +78,7 @@ func (m *Redis) DoGet(args ...any) ([]string, error) {
 	return cmd.StringSlice()
 }
 
-func (m *Redis) Colse() error {
+func (m *Redis) Close() error {
 	if m.Client == nil {
 		return nil
 	}
