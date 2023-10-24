@@ -67,7 +67,7 @@ func (m *Redis) DoSet(args ...any) error {
 }
 
 // 获取变量 Do 模式
-func (m *Redis) DoGet(args ...any) ([]string, error) {
+func (m *Redis) DoGet(args ...any) ([]any, error) {
 	if m.Client == nil {
 		m.InitRedisClient()
 	}
@@ -75,7 +75,7 @@ func (m *Redis) DoGet(args ...any) ([]string, error) {
 		context.Background(),
 		args...,
 	)
-	return cmd.StringSlice()
+	return cmd.Slice()
 }
 
 func (m *Redis) Close() error {
