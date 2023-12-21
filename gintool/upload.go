@@ -47,17 +47,17 @@ func (m *Upload) Run(ctx *gin.Context) (error, string) {
 		return errors.New("上传文件类型识别错误"), ""
 	}
 	fileType := fileTypes[0]
-	if !strings.Contains(m.AllowTypes, fileType) {
-		return errors.New("上传文件类型错误"), ""
+	if m.AllowTypes != "" && m.AllowTypes != "*" {
+		if !strings.Contains(m.AllowTypes, fileType) {
+			return errors.New("上传文件类型错误"), ""
+		}
 	}
 	// 检查扩展名
-	if m.AllowExeNames == "" {
-		return errors.New("请设置允许的扩展名"), ""
-	}
 	extendName := strings.ToLower(gfs.GetExtension(file.Filename))
-	Index := strings.Index(m.AllowExeNames, extendName)
-	if Index == -1 {
-		return errors.New("上传文件扩展名错误"), ""
+	if m.AllowExeNames != "" && m.AllowExeNames != "*" {
+		if !strings.Contains(m.AllowExeNames, extendName) {
+			return errors.New("上传文件扩展名错误"), ""
+		}
 	}
 	// 检查文件夹是否存在，不存在则创建
 	if m.TargetDir == "" {
