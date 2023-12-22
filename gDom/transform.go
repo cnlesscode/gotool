@@ -6,13 +6,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-type ItemForContent struct {
-	Type    string `json:"type"`
-	Content string `json:"content"`
-}
-
 // 将项目转化为html形式
-func TransformItemsToHtml(items []ItemForContent) string {
+func TransformItemsToHtml(items []ContentItem) string {
 	var htmlContent string = ""
 	for _, item := range items {
 		if item.Type == "a" {
@@ -34,7 +29,7 @@ func TransformItemsToHtml(items []ItemForContent) string {
 }
 
 // 将 html 源码转换为项目数组
-func TransformHTMLToItems(parentNode *html.Node, items *[]ItemForContent) {
+func TransformHTMLToItems(parentNode *html.Node, items *[]ContentItem) {
 	for node := parentNode.FirstChild; node != nil; node = node.NextSibling {
 		if node.Type > 1 {
 			if node.FirstChild == nil {
@@ -51,18 +46,18 @@ func TransformHTMLToItems(parentNode *html.Node, items *[]ItemForContent) {
 }
 
 // 解析标签
-func AnalysisTag(node *html.Node, items *[]ItemForContent) {
+func AnalysisTag(node *html.Node, items *[]ContentItem) {
 	tagData := node.Data
 	parentNode := node.Parent
 	tagType := parentNode.Data
 	// 文本
 	if tagType == "hr" {
-		*items = append(*items, ItemForContent{Type: "hr", Content: "..."})
+		*items = append(*items, ContentItem{Type: "hr", Content: "..."})
 	} else if tagType == "a" {
 		href := Href(parentNode)
 		*items = append(
 			*items,
-			ItemForContent{
+			ContentItem{
 				Type:    "a",
 				Content: "[" + tagData + "](" + href + ")",
 			},
@@ -71,14 +66,14 @@ func AnalysisTag(node *html.Node, items *[]ItemForContent) {
 		src := Src(parentNode)
 		*items = append(
 			*items,
-			ItemForContent{
+			ContentItem{
 				Type:    tagType,
 				Content: src,
 			},
 		)
 	} else {
 		if tagData != "" {
-			*items = append(*items, ItemForContent{Type: tagType, Content: tagData})
+			*items = append(*items, ContentItem{Type: tagType, Content: tagData})
 		}
 	}
 }
