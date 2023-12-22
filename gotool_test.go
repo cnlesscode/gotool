@@ -12,7 +12,6 @@ import (
 // 测试命令 : go test -v -run=TestMain
 func TestMain(t *testing.T) {
 	// 获取网页源码，创建 html node
-	// htmlNode, err := gDom.InitByUrl("https://www.lesscode.work/sections/61f0dc7c20566.html")
 	htmlNode, err := gDom.InitByFile("./demoData/html.html")
 	if err != nil {
 		fmt.Printf("err: %v\n", err)

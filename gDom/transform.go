@@ -22,6 +22,8 @@ func TransformItemsToHtml(items []ItemForContent) string {
 			htmlContent += "<p><hr /></p>"
 		} else if item.Type == "img" || item.Type == "image" {
 			htmlContent += `<img src="` + item.Content + `" />`
+		} else if item.Type == "video" || item.Type == "audio" {
+			htmlContent += `<${item.Type} src="` + item.Content + `"></${item.Type}>`
 		} else if item.Type == "p" {
 			htmlContent += "<p>" + item.Content + "</p>"
 		} else {
@@ -48,6 +50,7 @@ func TransformHTMLToItems(parentNode *html.Node, items *[]ItemForContent) {
 	}
 }
 
+// 解析标签
 func AnalysisTag(node *html.Node, items *[]ItemForContent) {
 	tagData := node.Data
 	parentNode := node.Parent
@@ -56,7 +59,7 @@ func AnalysisTag(node *html.Node, items *[]ItemForContent) {
 	if tagType == "hr" {
 		*items = append(*items, ItemForContent{Type: "hr", Content: "..."})
 	} else if tagType == "a" {
-		href := Link(parentNode)
+		href := Href(parentNode)
 		*items = append(
 			*items,
 			ItemForContent{
@@ -80,7 +83,8 @@ func AnalysisTag(node *html.Node, items *[]ItemForContent) {
 	}
 }
 
-func Link(node *html.Node) string {
+// 获取 href 属性
+func Href(node *html.Node) string {
 	href := ""
 	for _, item := range node.Attr {
 		key := strings.ToLower(item.Key)
@@ -91,6 +95,8 @@ func Link(node *html.Node) string {
 	}
 	return href
 }
+
+// 获取 src 属性
 func Src(node *html.Node) string {
 	src := ""
 	for _, item := range node.Attr {
