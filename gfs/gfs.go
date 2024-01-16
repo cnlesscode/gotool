@@ -41,6 +41,45 @@ func DirExists(dir string) bool {
 	return false
 }
 
+// Scan Dir
+type ScanDirStruct struct {
+	Name  string
+	Path  string
+	IsDir bool
+	Sons  []*ScanDirStruct
+}
+
+func ScanDir(deep bool, result *ScanDirStruct) error {
+	fileOrDirItems, err := os.ReadDir(result.Path)
+	if err != nil {
+		return err
+	}
+	var Sons []*ScanDirStruct
+	for _, item := range fileOrDirItems {
+		filepath := filepath.Join(result.Path, item.Name())
+		if item.IsDir() {
+			dir := &ScanDirStruct{
+				Name:  item.Name(),
+				Path:  filepath,
+				IsDir: true,
+			}
+			Sons = append(Sons, dir)
+			result.Sons = Sons
+			if deep {
+				ScanDir(deep, dir)
+			}
+		} else {
+			Sons = append(Sons, &ScanDirStruct{
+				Name:  item.Name(),
+				Path:  filepath,
+				IsDir: false,
+			})
+			result.Sons = Sons
+		}
+	}
+	return nil
+}
+
 // Copy File
 func CopyFile(srcUri string, dstUri string) error {
 	reader, err := os.Open(srcUri)

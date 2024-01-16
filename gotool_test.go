@@ -2,33 +2,36 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
-	"github.com/cnlesscode/gotool/gDom"
-	"golang.org/x/net/html"
+	"github.com/cnlesscode/gotool/gfs"
 )
 
 // 单元测试
 // 测试命令 : go test -v -run=TestMain
 func TestMain(t *testing.T) {
-	// 获取网页源码，创建 html node
-	htmlNode, err := gDom.InitByFile("./demoData/html.html")
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		return
+	result := gfs.ScanDirStruct{
+		Name:  "根目录",
+		Path:  "./a",
+		IsDir: true,
 	}
-	// 寻找 body 节点
-	body, err := gDom.FindNode(htmlNode, html.ElementNode, "body")
-	if err != nil {
+	err := gfs.ScanDir(true, &result)
+	if err == nil {
+		ShowDir(&result, 0)
+	} else {
 		fmt.Printf("err: %v\n", err)
-		return
 	}
-	// 寻找 p 标签 [ 多个 ]
-	pNodes := make([]*html.Node, 0)
-	gDom.FindNodes(body, html.ElementNode, "p", &pNodes)
+}
 
-	// 将 html 转换为项目
-	items := make([]gDom.ItemForContent, 0)
-	gDom.TransformHTMLToItems(body, &items)
-	fmt.Printf("items: %v\n", items)
+func ShowDir(root *gfs.ScanDirStruct, step int) {
+	fmt.Printf(strings.Repeat("  ", step)+"|_ %s [目录]\n", root.Name)
+	step++
+	for _, v := range root.Sons {
+		if v.IsDir {
+			ShowDir(v, step)
+		} else {
+			fmt.Printf(strings.Repeat("  ", step)+"|_ %s [文件]\n", v.Name)
+		}
+	}
 }
