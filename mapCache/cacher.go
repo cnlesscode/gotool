@@ -30,7 +30,7 @@ func Start(GCIntervalTime int64) {
 	}
 	go (func() {
 		// 缓存有效期检查
-		println("✔ 缓存有效期检查线程已经启动，间隔 : " + strconv.Itoa(int(GCIntervalTime)) + " 秒\n")
+		println("✔ mapCache 缓存有效期检查线程已经启动，间隔 : " + strconv.Itoa(int(GCIntervalTime)) + " 秒\n")
 		for {
 			time.Sleep(time.Second * time.Duration(GCIntervalTime))
 			MapCacherExpiration.Range(func(key, value any) bool {
