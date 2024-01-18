@@ -83,10 +83,11 @@ func Cache(keyName string, expiration int, cacheFunc CacheFunc, cacheParameters 
 
 // 设置缓存
 func Set(keyName string, expiration int, data any) {
-	MapCacher.Store(keyName, data)
-	if expiration > 0 {
-		MapCacherExpiration.Store(keyName, time.Now().Unix()+int64(expiration))
+	if expiration < 1 {
+		expiration = 3600
 	}
+	MapCacher.Store(keyName, data)
+	MapCacherExpiration.Store(keyName, time.Now().Unix()+int64(expiration))
 }
 
 // 删除指定缓存
