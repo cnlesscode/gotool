@@ -33,31 +33,18 @@ func (m TencentCOS) InitClient() *cos.Client {
 }
 
 // 上传文件
-func (m *TencentCOS) UploadFile(fileUrl string) error {
+func (m *TencentCOS) UploadFile(cloudFileUrl string, localFileUrl string) error {
 	c := m.InitClient()
-	// 通过本地文件上传对象
-	fileUrlAliOss := ""
-	if fileUrl[0:2] == "./" {
-		fileUrlAliOss = fileUrl[2:]
-	} else {
-		fileUrlAliOss = fileUrl
-	}
-	_, err := c.Object.PutFromFile(context.Background(), fileUrlAliOss, fileUrlAliOss, nil)
+	_, err := c.Object.PutFromFile(context.Background(), cloudFileUrl, localFileUrl, nil)
 	return err
 }
 
 // 删除文件
-func (m *TencentCOS) RemoveFile(fileUrl string, removeLocalFile bool) error {
+func (m *TencentCOS) RemoveFile(cloudFileUrl string, localFileUrl string, removeLocalFile bool) error {
 	if removeLocalFile {
-		os.Remove(fileUrl)
-	}
-	fileUrlAliOss := ""
-	if fileUrl[0:2] == "./" {
-		fileUrlAliOss = fileUrl[2:]
-	} else {
-		fileUrlAliOss = fileUrl
+		os.Remove(localFileUrl)
 	}
 	c := m.InitClient()
-	_, err := c.Object.Delete(context.Background(), fileUrlAliOss)
+	_, err := c.Object.Delete(context.Background(), cloudFileUrl)
 	return err
 }

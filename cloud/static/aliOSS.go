@@ -20,7 +20,7 @@ func (aliOSS AliOSS) InitClient() (*oss.Client, error) {
 }
 
 // Remove AliOSS File
-func (aliOSS AliOSS) RemoveFile(fileUrl string, removeLocalFile bool) error {
+func (aliOSS AliOSS) RemoveFile(cloudFileUrl string, localFileUrl string, removeLocalFile bool) error {
 	client, err := aliOSS.InitClient()
 	if err != nil {
 		return err
@@ -29,20 +29,14 @@ func (aliOSS AliOSS) RemoveFile(fileUrl string, removeLocalFile bool) error {
 	if err != nil {
 		return err
 	}
-	fileUrlAliOss := ""
-	if fileUrl[0:2] == "./" {
-		fileUrlAliOss = fileUrl[2:]
-	} else {
-		fileUrlAliOss = fileUrl
-	}
 	if removeLocalFile {
-		os.Remove(fileUrl)
+		os.Remove(localFileUrl)
 	}
-	return bucket.DeleteObject(fileUrlAliOss)
+	return bucket.DeleteObject(cloudFileUrl)
 }
 
 // upload a file to aliOSS
-func (aliOSS AliOSS) UploadFile(fileUrl string) error {
+func (aliOSS AliOSS) UploadFile(cloudFileUrl string, localFileUrl string) error {
 	client, err := aliOSS.InitClient()
 	if err != nil {
 		return err
@@ -51,11 +45,5 @@ func (aliOSS AliOSS) UploadFile(fileUrl string) error {
 	if err != nil {
 		return err
 	}
-	fileUrlAliOss := ""
-	if fileUrl[0:2] == "./" {
-		fileUrlAliOss = fileUrl[2:]
-	} else {
-		fileUrlAliOss = fileUrl
-	}
-	return bucket.PutObjectFromFile(fileUrlAliOss, fileUrl)
+	return bucket.PutObjectFromFile(cloudFileUrl, localFileUrl)
 }
