@@ -2,6 +2,7 @@ package gintool
 
 import (
 	"net/url"
+	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -22,9 +23,12 @@ func SafePOST(ctx *gin.Context) {
 	ctx.Request.ParseForm()
 	formMap := ctx.Request.PostForm
 	for k, item := range formMap {
-		safeString := strings.ReplaceAll(item[0], "<", "&lt;")
-		safeString = strings.ReplaceAll(safeString, ">", "&gt;")
-		ctx.Request.Form.Set(k, safeString)
+		v := reflect.ValueOf(item[0])
+		if v.Type().Name() == "string" {
+			safeString := strings.ReplaceAll(item[0], "<", "&lt;")
+			safeString = strings.ReplaceAll(safeString, ">", "&gt;")
+			ctx.Request.PostForm.Set(k, safeString)
+		}
 	}
 }
 
