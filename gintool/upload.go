@@ -2,6 +2,7 @@ package gintool
 
 import (
 	"errors"
+	"mime/multipart"
 	"strings"
 	"time"
 
@@ -22,14 +23,16 @@ type Upload struct {
 	DirNamingRule    string
 	FileNamingRule   string
 	UploadedFilePath string
+	SourceFile       *multipart.FileHeader
 }
 
 func (m *Upload) Run(ctx *gin.Context) (string, error) {
+	var err error
 	// 检查文件名及文件有效性
 	if m.FileName == "" {
 		return "", errors.New("请设置上传文件名")
 	}
-	file, err := ctx.FormFile(m.FileName)
+	m.SourceFile, err = ctx.FormFile(m.FileName)
 	if err != nil {
 		return "", errors.New("上传文件数据错误")
 	}
@@ -37,25 +40,26 @@ func (m *Upload) Run(ctx *gin.Context) (string, error) {
 	if m.MaxSize < 1 {
 		m.MaxSize = 10
 	}
-	if file.Size > m.MaxSize*1048576 {
+	if m.SourceFile.Size > m.MaxSize*1048576 {
 		return "", errors.New("上传文件过大")
 	}
 	// 检查文件类型
-	if m.AllowTypes == "" {
-		return "", errors.New("请设置允许的上传类型")
-	}
-	fileTypes := file.Header["Content-Type"]
-	if len(fileTypes) < 1 {
-		return "", errors.New("上传文件类型识别错误")
-	}
-	m.FileType = fileTypes[0]
+	// * 代表全部
 	if m.AllowTypes != "" && m.AllowTypes != "*" {
-		if !strings.Contains(m.AllowTypes, m.FileType) {
-			return "", errors.New("上传文件类型错误")
+		fileTypes := m.SourceFile.Header["Content-Type"]
+		if len(fileTypes) < 1 {
+			return "", errors.New("上传文件类型识别错误")
+		}
+		m.FileType = fileTypes[0]
+		if m.AllowTypes != "" && m.AllowTypes != "*" {
+			if !strings.Contains(m.AllowTypes, m.FileType) {
+				return "", errors.New("上传文件类型错误")
+			}
 		}
 	}
 	// 检查扩展名
-	m.ExtendName = strings.ToLower(gfs.GetExtension(file.Filename))
+	// * 代表全部
+	m.ExtendName = strings.ToLower(gfs.GetExtension(m.SourceFile.Filename))
 	if m.AllowExeNames != "" && m.AllowExeNames != "*" {
 		if !strings.Contains(m.AllowExeNames, m.ExtendName) {
 			return "", errors.New("上传文件扩展名错误")
@@ -90,13 +94,13 @@ func (m *Upload) Run(ctx *gin.Context) (string, error) {
 	// 根据文件命名规则命名文件
 	uploadTargetFile := ""
 	if m.FileNamingRule == "" {
-		uploadTargetFile = file.Filename
+		uploadTargetFile = m.SourceFile.Filename
 	} else if m.FileNamingRule == "random" {
 		uploadTargetFile = gmd5.Md5(uuid.New().String()) + "." + m.ExtendName
 	}
 	// 上传文件至指定的完整文件路径
 	m.UploadedFilePath = uploadTargetDir + uploadTargetFile
-	err = ctx.SaveUploadedFile(file, m.UploadedFilePath)
+	err = ctx.SaveUploadedFile(m.SourceFile, m.UploadedFilePath)
 	if err == nil {
 		return uploadTargetDir + uploadTargetFile, nil
 	} else {
