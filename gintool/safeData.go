@@ -15,7 +15,7 @@ func SafePOST(ctx *gin.Context) {
 		return
 	}
 	var specialChars = []string{"<", ">", "%3C", "%3E"}
-	var specialCharsTo = []string{"_", "_", "_", "_"}
+	var specialCharsTo = []string{"&lt;", "&gt;", "&lt;", "&gt;"}
 	for idx, char := range specialChars {
 		body = bytes.ReplaceAll(body, []byte(char), []byte(specialCharsTo[idx]))
 	}
