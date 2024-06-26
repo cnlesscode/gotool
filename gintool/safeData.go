@@ -3,6 +3,7 @@ package gintool
 import (
 	"bytes"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -12,13 +13,16 @@ import (
 func SafePOST(ctx *gin.Context) {
 	body, err := ctx.GetRawData()
 	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	var specialChars = []string{"<", ">", "%3C", "%3E"}
-	var specialCharsTo = []string{"&lt;", "&gt;", "&lt;", "&gt;"}
+	bodyString := string(body)
+	var specialChars = []string{"<", "%3C", "%3c", "<", "%3E", "%3e"}
+	var specialCharsTo = []string{"‹", "‹", "‹", "›", "›", "›"}
 	for idx, char := range specialChars {
-		body = bytes.ReplaceAll(body, []byte(char), []byte(specialCharsTo[idx]))
+		bodyString = strings.ReplaceAll(bodyString, char, specialCharsTo[idx])
 	}
+	body = []byte(bodyString)
 	// 将过滤后的请求体设置回请求中
 	ctx.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 	ctx.Request.ContentLength = int64(len(body))
@@ -30,14 +34,14 @@ func SafeQuery(ctx *gin.Context, key string) string {
 	if data == "" {
 		return data
 	}
-	data = strings.ReplaceAll(data, "<", "&lt;")
-	data = strings.ReplaceAll(data, ">", "&gt;")
+	data = strings.ReplaceAll(data, "<", "‹")
+	data = strings.ReplaceAll(data, ">", "›")
 	return data
 }
 
 // 字符串 过滤
 func SafeData(data string) string {
-	data = strings.ReplaceAll(data, "<", "&lt;")
-	data = strings.ReplaceAll(data, ">", "&gt;")
+	data = strings.ReplaceAll(data, "<", "‹")
+	data = strings.ReplaceAll(data, ">", "›")
 	return data
 }
