@@ -23,7 +23,6 @@ func SafePOST(ctx *gin.Context) {
 		bodyString = strings.ReplaceAll(bodyString, char, specialCharsTo[idx])
 	}
 	body = []byte(bodyString)
-	// 将过滤后的请求体设置回请求中
 	ctx.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 	ctx.Request.ContentLength = int64(len(body))
 }
