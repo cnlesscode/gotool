@@ -17,7 +17,7 @@ func SafePOST(ctx *gin.Context) {
 		return
 	}
 	bodyString := string(body)
-	var specialChars = []string{"<", "%3C", "%3c", "<", "%3E", "%3e"}
+	var specialChars = []string{"<", "%3C", "%3c", ">", "%3E", "%3e"}
 	var specialCharsTo = []string{"‹", "‹", "‹", "›", "›", "›"}
 	for idx, char := range specialChars {
 		bodyString = strings.ReplaceAll(bodyString, char, specialCharsTo[idx])
