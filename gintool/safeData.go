@@ -1,49 +1,38 @@
 package gintool
 
 import (
-	"net/url"
-	"reflect"
+	"bytes"
+	"io"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-// 请求过滤
-func SafeRequest(ctx *gin.Context) {
-	// POST
-	if ctx.Request.Method == "POST" {
-		SafePOST(ctx)
-	}
-	// GET
-	SafeQuery(ctx)
-}
-
 // POST 过滤
 func SafePOST(ctx *gin.Context) {
-	ctx.Request.ParseForm()
-	formMap := ctx.Request.PostForm
-	for k, item := range formMap {
-		v := reflect.ValueOf(item[0])
-		if v.Type().Name() == "string" {
-			safeString := strings.ReplaceAll(item[0], "<", "&lt;")
-			safeString = strings.ReplaceAll(safeString, ">", "&gt;")
-			ctx.Request.PostForm.Set(k, safeString)
-		}
-	}
-}
-
-// GET 过滤
-func SafeQuery(ctx *gin.Context) {
-	if ctx.Request.URL.RawQuery == "" {
-		return
-	}
-	rawQuery, err := url.QueryUnescape(string(ctx.Request.URL.RawQuery))
+	body, err := ctx.GetRawData()
 	if err != nil {
 		return
 	}
-	rawQuery = strings.ReplaceAll(rawQuery, "<", "&lt;")
-	rawQuery = strings.ReplaceAll(rawQuery, ">", "&gt;")
-	ctx.Request.URL.RawQuery = rawQuery
+	var specialChars = []string{"<", ">", "%3C", "%3E"}
+	var specialCharsTo = []string{"_", "_", "_", "_"}
+	for idx, char := range specialChars {
+		body = bytes.ReplaceAll(body, []byte(char), []byte(specialCharsTo[idx]))
+	}
+	// 将过滤后的请求体设置回请求中
+	ctx.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+	ctx.Request.ContentLength = int64(len(body))
+}
+
+// GET 过滤
+func SafeQuery(ctx *gin.Context, key string) string {
+	data := ctx.Query(key)
+	if data == "" {
+		return data
+	}
+	data = strings.ReplaceAll(data, "<", "&lt;")
+	data = strings.ReplaceAll(data, ">", "&gt;")
+	return data
 }
 
 // 字符串 过滤
