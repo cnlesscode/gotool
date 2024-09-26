@@ -1,110 +1,73 @@
 package datetime
 
-import (
-	"strconv"
-	"time"
-)
+import "time"
 
-// Time stamp to date time
-func TimeStampToDatatime(timeStamp int64) string {
-	tm := time.Now()
-	if timeStamp != -1 {
-		tm = time.Unix(timeStamp, 0)
-	}
-	return tm.Format("2006-01-02 15:04:05")
+type DateTime struct {
+	Year         int
+	YearString   string
+	Month        int
+	MonthString  string
+	Day          int
+	DayString    string
+	Hour         int
+	HourString   string
+	Minute       int
+	MinuteString string
+	Second       int
+	SecondString string
+	TimeStamp    int64
+	Format       string
+	Result       string
+	Time         time.Time
 }
 
-// Time stamp to date time and format
-func TimeStampToDatatimeFormat(timeStamp int64, format string) string {
-	tm := time.Now()
-	if timeStamp != -1 {
-		tm = time.Unix(timeStamp, 0)
-	}
-	return tm.Format(format)
-}
-
-// Time stamp to slice [] string
-func TimeStampToDatatimeSlice(timeStamp int64) []string {
-	tm := time.Now()
-	if timeStamp != -1 {
-		tm = time.Unix(timeStamp, 0)
-	}
-	return []string{
-		tm.Format("2006"),
-		tm.Format("01"),
-		tm.Format("02"),
-		tm.Format("15"),
-		tm.Format("04"),
-		tm.Format("05"),
+func New() *DateTime {
+	return &DateTime{
+		Format: "2006-01-02 15:04:05",
 	}
 }
 
-// Date time to time stamp
-func DateTimeToTimeStamp(datetime string) int64 {
-	res, err := time.ParseInLocation("2006-01-02 15:04:05", datetime, time.Local)
-	if err == nil {
-		return res.Unix()
-	} else {
-		return 0
-	}
+func (dt *DateTime) InitFromTimeStamp(timeStamp int64) {
+	dt.TimeStamp = timeStamp
+	dt.Time = time.Unix(timeStamp, 0)
+	dt.initFromTimeStampBase()
 }
 
-// Calculate past time
-func FormatPastTime(pastTimeStamp int64) (int, string, string) {
-	currentTime := time.Now().Unix()
-	timeDifference := int(currentTime - pastTimeStamp)
-	if timeDifference < 180 {
-		return timeDifference, "just", "刚刚"
-	} else if timeDifference >= 180 && timeDifference < 3600 {
-		resultInt := int(timeDifference / 60)
-		return timeDifference, strconv.Itoa(resultInt) + " minutes ago", strconv.Itoa(resultInt) + "分钟前"
-	} else if timeDifference >= 3600 && timeDifference < 86400 {
-		resultInt := int(timeDifference / 3600)
-		return timeDifference, strconv.Itoa(resultInt) + " hours ago", strconv.Itoa(resultInt) + "小时前"
-	} else if timeDifference >= 86400 && timeDifference < 2592000 {
-		resultInt := int(timeDifference / 86400)
-		return timeDifference, strconv.Itoa(resultInt) + " days ago", strconv.Itoa(resultInt) + "天前"
-	} else {
-		return timeDifference, TimeStampToDatatime(pastTimeStamp), TimeStampToDatatime(pastTimeStamp)
-	}
+func (dt *DateTime) initFromTimeStampBase() {
+	dt.Year = dt.Time.Year()
+	dt.YearString = dt.Time.Format("2006")
+	dt.Month = int(dt.Time.Month())
+	dt.MonthString = dt.Time.Format("01")
+	dt.Day = dt.Time.Day()
+	dt.DayString = dt.Time.Format("02")
+	dt.Hour = dt.Time.Hour()
+	dt.HourString = dt.Time.Format("15")
+	dt.Minute = dt.Time.Minute()
+	dt.MinuteString = dt.Time.Format("04")
+	dt.Second = dt.Time.Second()
+	dt.SecondString = dt.Time.Format("05")
+	dt.Result = dt.Time.Format(dt.Format)
 }
 
-// Count Days Of A Month
-func CountDaysOfAMonth(yearAndMonth string) (int, error) {
-	if len([]rune(yearAndMonth)) < 6 {
-		return 0, nil
-	}
-	year, erry := strconv.Atoi(yearAndMonth[0:4])
-	if erry != nil {
-		return 0, erry
-	}
-	monthStr := yearAndMonth[4:6]
-	if monthStr[0:1] == "0" {
-		monthStr = monthStr[1:2]
-	}
-	month, _ := strconv.Atoi(monthStr)
-	var days int = 0
-	if month != 2 {
-		if month == 4 || month == 6 || month == 9 || month == 11 {
-			days = 30
-		} else {
-			days = 31
-		}
-	} else {
-		if ((year%4) == 0 && (year%100) != 0) || (year%400) == 0 {
-			days = 29
-		} else {
-			days = 28
-		}
-	}
-	return days, nil
+// 当前时间
+func (dt *DateTime) Now() {
+	dt.InitFromTimeStamp(time.Now().Unix())
 }
 
-// Is Leap Year
-func IsLeapYear(year int) bool {
-	if ((year%4) == 0 && (year%100) != 0) || (year%400) == 0 {
-		return true
-	} else {
-		return false
-	}
+// 切换年份
+func (dt *DateTime) SwicthYear(year int) *DateTime {
+	dtNew := New()
+	dtNew.InitFromTimeStamp(dt.TimeStamp)
+	dtNew.Time = dt.Time.AddDate(year, 0, 0)
+	dtNew.initFromTimeStampBase()
+	return dtNew
+}
+
+// 切换月份
+func (dt *DateTime) SwicthMonth(month int) *DateTime {
+	dtNew := New()
+	dtNew.InitFromTimeStamp(dt.TimeStamp)
+	dtNew.Time = dt.Time.AddDate(0, month, 0)
+	dtNew.initFromTimeStampBase()
+	return dtNew
 }
