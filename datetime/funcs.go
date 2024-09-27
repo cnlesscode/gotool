@@ -49,6 +49,15 @@ func DateTimeToTimeStamp(datetime string) int64 {
 	}
 }
 
+func DateTime2TimeStamp(format string, datetime string) int64 {
+	res, err := time.ParseInLocation(format, datetime, time.Local)
+	if err == nil {
+		return res.Unix()
+	} else {
+		return 0
+	}
+}
+
 // Calculate past time
 func FormatPastTime(pastTimeStamp int64) (int, string, string) {
 	currentTime := time.Now().Unix()

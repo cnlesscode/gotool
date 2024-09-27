@@ -1,6 +1,8 @@
 package datetime
 
-import "time"
+import (
+	"time"
+)
 
 type DateTime struct {
 	Year         int
@@ -49,25 +51,38 @@ func (dt *DateTime) initFromTimeStampBase() {
 	dt.Result = dt.Time.Format(dt.Format)
 }
 
+func (dt *DateTime) InitFromDatatime(datetime string) {
+	dt.Time, _ = time.Parse(dt.Format, datetime)
+	dt.initFromTimeStampBase()
+}
+
 // 当前时间
 func (dt *DateTime) Now() {
 	dt.InitFromTimeStamp(time.Now().Unix())
 }
 
-// 切换年份
-func (dt *DateTime) SwicthYear(year int) *DateTime {
+// 切换时间
+func (dt *DateTime) Swicth(tp string, val int) *DateTime {
 	dtNew := New()
 	dtNew.InitFromTimeStamp(dt.TimeStamp)
-	dtNew.Time = dt.Time.AddDate(year, 0, 0)
+	if tp == "year" {
+		dtNew.Time = dt.Time.AddDate(val, 0, 0)
+	} else if tp == "month" {
+		dtNew.Time = dt.Time.AddDate(0, val, 0)
+	} else if tp == "day" {
+		dtNew.Time = dt.Time.AddDate(0, 0, val)
+	} else if tp == "hour" {
+		dtNew.Time = dt.Time.Add(time.Duration(val) * time.Hour)
+	} else if tp == "minute" {
+		dtNew.Time = dt.Time.Add(time.Duration(val) * time.Minute)
+	} else if tp == "second" {
+		dtNew.Time = dt.Time.Add(time.Duration(val) * time.Second)
+	}
 	dtNew.initFromTimeStampBase()
 	return dtNew
 }
 
-// 切换月份
-func (dt *DateTime) SwicthMonth(month int) *DateTime {
-	dtNew := New()
-	dtNew.InitFromTimeStamp(dt.TimeStamp)
-	dtNew.Time = dt.Time.AddDate(0, month, 0)
-	dtNew.initFromTimeStampBase()
-	return dtNew
+// 获取某月天数
+func (st *DateTime) CountDaysOfAMonth() int {
+	return time.Date(st.Year, st.Time.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
 }
