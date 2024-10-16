@@ -49,10 +49,11 @@ func (dt *DateTime) initFromTimeStampBase() {
 	dt.Second = dt.Time.Second()
 	dt.SecondString = dt.Time.Format("05")
 	dt.Result = dt.Time.Format(dt.Format)
+	dt.TimeStamp = dt.Time.Unix()
 }
 
 func (dt *DateTime) InitFromDatatime(datetime string) {
-	dt.Time, _ = time.Parse(dt.Format, datetime)
+	dt.Time, _ = time.ParseInLocation(dt.Format, datetime, time.Local)
 	dt.initFromTimeStampBase()
 }
 
