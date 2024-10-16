@@ -10,4 +10,5 @@ import (
 func TestMain(t *testing.T) {
 	fmt.Printf("Root: %v\n", Root)
 	fmt.Printf("OS: %v\n", OS)
+	Loger.Info("TestMain")
 }
