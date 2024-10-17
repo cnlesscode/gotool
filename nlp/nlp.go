@@ -13,7 +13,7 @@ var Seg gse.Segmenter
 var NPLNotWordsString string = ""
 
 func init() {
-	Seg.SkipLog = false
+	Seg.SkipLog = true
 	Seg.LoadDict("./resources/dict/zh/s_1.txt")
 	NPLNotWords, err := os.ReadFile("./resources/dict/nplNotWords.txt")
 	if err == nil {
