@@ -17,6 +17,7 @@ func Download(ctx *gin.Context, fileUrl string, fileName string, remove bool) {
 		extensionName := gfs.GetExtension(fileUrl)
 		fileName = fileName + "." + extensionName
 	}
+	fileName = strings.ReplaceAll(fileName, ",", "_")
 	b, err := os.ReadFile(fileUrl)
 	if err == nil {
 		rw := ctx.Writer
