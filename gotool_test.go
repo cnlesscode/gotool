@@ -15,8 +15,8 @@ func TestMain(t *testing.T) {
 	dt.Now()
 	Loger.Printf("当前时间 : %s", dt.Result)
 	// 下一月
-	nextMonth := dt.Swicth("month", 1)
-	Loger.Printf("一月后时间 : %s", nextMonth.Result)
-	nextDay := dt.Swicth("day", 1)
-	fmt.Printf("nextDay: %v\n", nextDay)
+	for i := 0; i < 19; i++ {
+		dtn := dt.Swicth("month", -1*i)
+		fmt.Printf("dtn.Result: %v\n", dtn.Result)
+	}
 }

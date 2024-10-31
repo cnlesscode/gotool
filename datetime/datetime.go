@@ -64,15 +64,18 @@ func (dt *DateTime) Now() {
 
 // 切换时间
 func (dt *DateTime) Swicth(tp string, val int) *DateTime {
-	if dt.IsLeap() {
-		daysOfMonth[1] = 29
-	}
 	dtNew := New()
 	dtNew.InitFromTimeStamp(dt.TimeStamp)
 	if tp == "year" {
-		dtNew.Time = AddDate(dt.Time, val, 0)
+		dtNew.Time = dt.Time.AddDate(val, 0, 0)
 	} else if tp == "month" {
-		dtNew.Time = AddDate(dt.Time, 0, val)
+		month := val + dt.Month
+		dayMax := dt.CountDaysOfAMonth(month + 1)
+		useDay := dt.Day
+		if dayMax < useDay {
+			useDay = dayMax
+		}
+		dtNew.Time = time.Date(dt.Year, time.Month(month), useDay, dt.Hour, dt.Minute, dt.Second, 0, time.Local)
 	} else if tp == "day" {
 		dtNew.Time = dt.Time.AddDate(0, 0, val)
 	} else if tp == "hour" {
@@ -87,8 +90,8 @@ func (dt *DateTime) Swicth(tp string, val int) *DateTime {
 }
 
 // 获取某月天数
-func (st *DateTime) CountDaysOfAMonth() int {
-	return time.Date(st.Year, st.Time.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
+func (st *DateTime) CountDaysOfAMonth(month int) int {
+	return time.Date(st.Year, time.Month(month), 0, 0, 0, 0, 0, time.UTC).Day()
 }
 
 // 闰年
@@ -96,38 +99,6 @@ func (dt *DateTime) IsLeap() bool {
 	return dt.Year%4 == 0 && (dt.Year%100 != 0 || dt.Year%400 == 0)
 }
 
-var daysOfMonth = [...]int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-
-func AddDate(t time.Time, years, months int) time.Time {
-	month := t.Month()
-	years, months = norm(years, months, 12)
-	targetMonth := (int(month) + months) % 12
-	targetYear := t.Year() + years + (int(month)+months)/12
-	maxDayOfTargetMonth := daysOfMonth[targetMonth-1]
-	if isLeap(targetYear) && targetMonth == 2 {
-		maxDayOfTargetMonth += 1 // 闰年2月多一天
-	}
-	targetDay := t.Day()
-	if targetDay > maxDayOfTargetMonth {
-		targetDay = maxDayOfTargetMonth
-	}
-	return time.Date(targetYear, time.Month(targetMonth), targetDay, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
-}
-
-func norm(hi, lo, base int) (nhi, nlo int) {
-	if lo < 0 {
-		n := (-lo-1)/base + 1
-		hi -= n
-		lo += n * base
-	}
-	if lo >= base {
-		n := lo / base
-		hi += n
-		lo -= n * base
-	}
-	return hi, lo
-}
-
-func isLeap(year int) bool {
+func IsLeap(year int) bool {
 	return year%4 == 0 && (year%100 != 0 || year%400 == 0)
 }
