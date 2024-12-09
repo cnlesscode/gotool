@@ -8,8 +8,6 @@ require (
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.1
 	github.com/gin-gonic/gin v1.9.0
 	github.com/google/uuid v1.3.0
-	github.com/mattn/go-colorable v0.1.13
-	github.com/sirupsen/logrus v1.9.3
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
 )
 
