@@ -112,12 +112,11 @@ func subString(str string, start, end int) string {
 	length := len(rs)
 
 	if start < 0 || start > length {
-		panic("start is wrong")
+		return "start is wrong"
 	}
 
 	if end < start || end > length {
-		panic("end is wrong")
+		return "end is wrong"
 	}
-
 	return string(rs[start:end])
 }
