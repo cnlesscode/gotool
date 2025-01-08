@@ -51,11 +51,19 @@ func Start(dbConfigs map[string]map[string]string) {
 			} else {
 				host = conf["Host"]
 			}
-			DSN = conf["Username"] + ":" +
-				conf["Password"] + "@" +
-				"tcp(" + host + ":" + conf["Port"] + ")/" +
-				conf["DatabaseName"] + "?charset=" +
-				conf["Charset"] + "&parseTime=True&loc=Local"
+			if conf["RunMode"] == "dev" {
+				DSN = conf["UsernameDev"] + ":" +
+					conf["PasswordDev"] + "@" +
+					"tcp(" + host + ":" + conf["Port"] + ")/" +
+					conf["DatabaseName"] + "?charset=" +
+					conf["Charset"] + "&parseTime=True&loc=Local"
+			} else {
+				DSN = conf["Username"] + ":" +
+					conf["Password"] + "@" +
+					"tcp(" + host + ":" + conf["Port"] + ")/" +
+					conf["DatabaseName"] + "?charset=" +
+					conf["Charset"] + "&parseTime=True&loc=Local"
+			}
 			GoToolDBMap[k], err = gorm.Open(mysql.Open(DSN), options)
 			if err != nil {
 				println("✘ 连接库连接池 : " + k + " 初始化失败 ( " + err.Error() + " )")
