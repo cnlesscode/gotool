@@ -47,3 +47,16 @@ func (aliOSS AliOSS) UploadFile(cloudFileUrl string, localFileUrl string) error 
 	}
 	return bucket.PutObjectFromFile(cloudFileUrl, localFileUrl)
 }
+
+// 下载文件
+func (aliOSS AliOSS) DownloadFile(cloudFileUrl string, localFileUrl string) error {
+	client, err := aliOSS.InitClient()
+	if err != nil {
+		return err
+	}
+	bucket, err := client.Bucket(aliOSS.BucketName)
+	if err != nil {
+		return err
+	}
+	return bucket.GetObjectToFile(cloudFileUrl, localFileUrl)
+}

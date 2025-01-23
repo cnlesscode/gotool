@@ -48,3 +48,10 @@ func (m *TencentCOS) RemoveFile(cloudFileUrl string, localFileUrl string, remove
 	_, err := c.Object.Delete(context.Background(), cloudFileUrl)
 	return err
 }
+
+// 下载文件
+func (m *TencentCOS) DownloadFile(cloudFileUrl string, localFileUrl string) error {
+	c := m.InitClient()
+	_, err := c.Object.GetToFile(context.Background(), cloudFileUrl, localFileUrl, nil)
+	return err
+}

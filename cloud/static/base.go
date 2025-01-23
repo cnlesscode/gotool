@@ -88,3 +88,31 @@ func InitFileUrl(fileUrl string, config *Config) (string, string) {
 	}
 	return localUrl, cloudUrl
 }
+
+// 下载文件
+func DownloadFile(config *Config, fileUrl string) (string, error) {
+	localFileUrl, cloudFileUrl := InitFileUrl(fileUrl, config)
+	if config.Type == "Local" {
+		return localFileUrl, nil
+	} else if config.Type == "AliOSS" {
+		st := AliOSS{
+			Endpoint:        config.Endpoint,
+			AccessKeyId:     config.KeyId,
+			AccessKeySecret: config.Secret,
+			BucketName:      config.BucketName,
+			BaseUrl:         config.BaseUrl,
+		}
+		err := st.DownloadFile(cloudFileUrl, localFileUrl)
+		return localFileUrl, err
+	} else if config.Type == "TencentCOS" {
+		st := TencentCOS{
+			BucketURL: config.Endpoint,
+			SecretId:  config.KeyId,
+			SecretKey: config.Secret,
+			BaseUrl:   config.BaseUrl,
+		}
+		err := st.DownloadFile(cloudFileUrl, localFileUrl)
+		return localFileUrl, err
+	}
+	return localFileUrl, nil
+}
