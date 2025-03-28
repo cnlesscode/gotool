@@ -7,6 +7,7 @@ import (
 )
 
 // 单元测试
+
 // 测试命令 : go test -v -run=TestWrite
 func TestWrite(t *testing.T) {
 	bf := NewBinaryFile("./data", 100)
