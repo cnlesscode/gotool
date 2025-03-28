@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// 获取本机IP
 func GetLocalIP() string {
 	ifaces, err := net.Interfaces()
 	if err != nil {
@@ -31,14 +32,22 @@ func GetLocalIP() string {
 	return ""
 }
 
+// 获取网络IP
 func GetNetworkIP() string {
-	resp, err := http.Get("http://ifconfig.me/ip")
-	if err == nil {
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err == nil {
-			return string(body)
-		}
+	resp, err := http.Get("http://ipv4.icanhazip.com")
+	if err != nil {
+		return ""
 	}
-	return ""
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ""
+	}
+
+	ip := string(body)
+	// 替换ip的空格和换行
+	ip = strings.ReplaceAll(ip, "\n", "")
+	ip = strings.ReplaceAll(ip, " ", "")
+	return ip
 }
