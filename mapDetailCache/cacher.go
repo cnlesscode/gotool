@@ -1,6 +1,7 @@
 package mapDetailCache
 
 import (
+	"log"
 	"strconv"
 	"sync"
 	"time"
@@ -29,7 +30,7 @@ func Start(GCIntervalTime int64) {
 	}
 	go (func() {
 		// 缓存有效期检查
-		println("✔ mapDetailCache 缓存有效期检查线程已经启动，间隔 : " + strconv.Itoa(int(GCIntervalTime)) + " 秒")
+		log.Println("✔ mapDetailCache 缓存有效期检查线程已经启动，间隔 : " + strconv.Itoa(int(GCIntervalTime)) + " 秒")
 		for {
 			time.Sleep(time.Second * time.Duration(GCIntervalTime))
 			MapCacherExpiration.Range(func(key, value any) bool {

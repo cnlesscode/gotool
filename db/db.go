@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -66,9 +67,9 @@ func Start(dbConfigs map[string]map[string]string) {
 			}
 			GoToolDBMap[k], err = gorm.Open(mysql.Open(DSN), options)
 			if err != nil {
-				println("✘ 连接库连接池 : " + k + " 初始化失败 ( " + err.Error() + " )")
+				log.Println("✘ 连接库连接池 : " + k + " 初始化失败 ( " + err.Error() + " )")
 			} else {
-				println("✔ 连接库连接池 : " + k + " 初始化成功 ")
+				log.Println("✔ 连接库连接池 : " + k + " 初始化成功 ")
 			}
 		}
 		// 获取基础数据库操作接口
