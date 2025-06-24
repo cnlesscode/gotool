@@ -2,31 +2,44 @@ package gotool
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
+
+	"github.com/cnlesscode/gotool/db"
 )
 
 // 单元测试
 
-// 测试命令 : go test -v -run=TestWrite
-func TestWrite(t *testing.T) {
-	bf := NewBinaryFile("./data", 100)
-	defer bf.Close()
-
-	for i := 1; i <= 300; i++ {
-		bf.Write([]byte(strconv.Itoa(i) + "中文:Hello World!"))
+// 测试命令 : go test -v -run=TestDB
+func TestDB(t *testing.T) {
+	dbConfigs := map[string]map[string]string{
+		// "DB": {
+		// 	"DBType":       "MSSQL",
+		// 	"RunMode":      "dev",
+		// 	"HostDev":      "localhost",
+		// 	"UsernameDev":  "root",
+		// 	"PasswordDev":  "root",
+		// 	"Port":         "1433",
+		// 	"DBName":       "test",
+		// 	"Charset":      "utf8mb4",
+		// 	"MaxOpenConns": "1000",
+		// 	"MaxIdleConns": "200",
+		// 	"MaxLifetime":  "3600",
+		// },
+		"DB": {
+			"DBType":       "MySQL",
+			"RunMode":      "dev",
+			"HostDev":      "localhost",
+			"UsernameDev":  "root",
+			"PasswordDev":  "root",
+			"Port":         "3306",
+			"DBName":       "test",
+			"Charset":      "utf8mb4",
+			"MaxOpenConns": "1000",
+			"MaxIdleConns": "200",
+			"MaxLifetime":  "3600",
+		},
 	}
-
-}
-
-// 测试命令 : go test -v -run=TestRead
-func TestRead(t *testing.T) {
-	bf := NewBinaryFile("./data", 100)
-	defer bf.Close()
-
-	res, err := bf.Read(299, 8)
-	fmt.Printf("res: %s\n", res)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-	}
+	db.Start(dbConfigs)
+	gormDB := db.Init()
+	fmt.Printf("gormDB: %v\n", gormDB)
 }

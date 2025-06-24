@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -45,27 +46,42 @@ func Start(dbConfigs map[string]map[string]string) {
 		// 创建连接池
 		var DSN string = ""
 		var err error
-		if conf["DBType"] == "MySQL" {
-			host := ""
-			if conf["RunMode"] == "dev" {
-				host = conf["HostDev"]
-			} else {
-				host = conf["Host"]
-			}
+		switch conf["DBType"] {
+		// MySQL
+		case "MySQL":
 			if conf["RunMode"] == "dev" {
 				DSN = conf["UsernameDev"] + ":" +
 					conf["PasswordDev"] + "@" +
-					"tcp(" + host + ":" + conf["Port"] + ")/" +
+					"tcp(" + conf["HostDev"] + ":" + conf["Port"] + ")/" +
 					conf["DatabaseName"] + "?charset=" +
 					conf["Charset"] + "&parseTime=True&loc=Local"
 			} else {
 				DSN = conf["Username"] + ":" +
 					conf["Password"] + "@" +
-					"tcp(" + host + ":" + conf["Port"] + ")/" +
+					"tcp(" + conf["Host"] + ":" + conf["Port"] + ")/" +
 					conf["DatabaseName"] + "?charset=" +
 					conf["Charset"] + "&parseTime=True&loc=Local"
 			}
 			GoToolDBMap[k], err = gorm.Open(mysql.Open(DSN), options)
+			if err != nil {
+				log.Println("✘ 连接库连接池 : " + k + " 初始化失败 ( " + err.Error() + " )")
+			} else {
+				log.Println("✔ 连接库连接池 : " + k + " 初始化成功 ")
+			}
+		// MSSQL
+		case "MSSQL":
+			if conf["RunMode"] == "dev" {
+				DSN = "sqlserver://" + conf["UsernameDev"] + ":" +
+					conf["PasswordDev"] + "@" +
+					conf["HostDev"] + ":" + conf["Port"] + "?database=" +
+					conf["DatabaseName"] + "&encrypt=disable&trustservercertificate=true"
+			} else {
+				DSN = "sqlserver://" + conf["Username"] + ":" +
+					conf["Password"] + "@" +
+					conf["Host"] + ":" + conf["Port"] + "?database=" +
+					conf["DatabaseName"] + "&encrypt=disable&trustservercertificate=true"
+			}
+			GoToolDBMap[k], err = gorm.Open(sqlserver.Open(DSN), options)
 			if err != nil {
 				log.Println("✘ 连接库连接池 : " + k + " 初始化失败 ( " + err.Error() + " )")
 			} else {
