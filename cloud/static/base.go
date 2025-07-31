@@ -1,78 +1,31 @@
 package static
 
-import "strings"
+import (
+	"os"
+	"path/filepath"
+	"strings"
+)
 
 type Config struct {
-	Endpoint   string
-	KeyId      string
-	Secret     string
-	BucketName string
-	BaseUrl    string
-	Type       string
+	Endpoint     string
+	KeyId        string
+	Secret       string
+	BucketName   string
+	LocalBaseUrl string
+	BaseUrl      string
+	Type         string
 }
 
-// 上传文件到云存储
-func UploadFile(config *Config, fileUrl string) error {
-	localFileUrl, cloudFileUrl := InitFileUrl(fileUrl, config)
-	if config.Type == "Local" {
-		st := Local{
-			BaseUrl: config.BaseUrl,
-		}
-		return st.UploadFile(cloudFileUrl)
-	} else if config.Type == "AliOSS" {
-		st := AliOSS{
-			Endpoint:        config.Endpoint,
-			AccessKeyId:     config.KeyId,
-			AccessKeySecret: config.Secret,
-			BucketName:      config.BucketName,
-			BaseUrl:         config.BaseUrl,
-		}
-		return st.UploadFile(cloudFileUrl, localFileUrl)
-	} else if config.Type == "TencentCOS" {
-		st := TencentCOS{
-			BucketURL: config.Endpoint,
-			SecretId:  config.KeyId,
-			SecretKey: config.Secret,
-			BaseUrl:   config.BaseUrl,
-		}
-		return st.UploadFile(cloudFileUrl, localFileUrl)
-	}
-	return nil
+type StaticCloud interface {
+	InitClient(config Config)
+	UploadFile(fileUrl string) error
+	DownloadFile(fileUrl string) error
+	RemoveFile(fileUrl string, removeLocalFile bool) error
+	MoveFile(fileUrl string, targerDir string) (string, error)
 }
 
-// 上传文件到云存储
-func RemoveFile(config *Config, fileUrl string, removeLocalFile bool) error {
-	localFileUrl, cloudFileUrl := InitFileUrl(fileUrl, config)
-	if config.Type == "Local" {
-		st := Local{
-			BaseUrl: config.BaseUrl,
-		}
-		return st.RemoveFile(localFileUrl)
-	} else if config.Type == "AliOSS" {
-		st := AliOSS{
-			Endpoint:        config.Endpoint,
-			AccessKeyId:     config.KeyId,
-			AccessKeySecret: config.Secret,
-			BucketName:      config.BucketName,
-			BaseUrl:         config.BaseUrl,
-		}
-		return st.RemoveFile(cloudFileUrl, localFileUrl, true)
-	} else if config.Type == "TencentCOS" {
-		st := TencentCOS{
-			BucketURL: config.Endpoint,
-			SecretId:  config.KeyId,
-			SecretKey: config.Secret,
-			BaseUrl:   config.BaseUrl,
-		}
-		return st.RemoveFile(cloudFileUrl, localFileUrl, true)
-	}
-	return nil
-}
-
-// 规划图片文件路径
-func InitFileUrl(fileUrl string, config *Config) (string, string) {
-	localUrl := ""
-	cloudUrl := ""
+// 规划文件路径
+func InitFileUrl(fileUrl string, config Config) (localUrl string, cloudUrl string) {
 	if fileUrl[0:2] == "./" {
 		localUrl = fileUrl
 		cloudUrl = fileUrl[2:]
@@ -89,30 +42,29 @@ func InitFileUrl(fileUrl string, config *Config) (string, string) {
 	return localUrl, cloudUrl
 }
 
-// 下载文件
-func DownloadFile(config *Config, fileUrl string) (string, error) {
-	localFileUrl, cloudFileUrl := InitFileUrl(fileUrl, config)
-	if config.Type == "Local" {
-		return localFileUrl, nil
-	} else if config.Type == "AliOSS" {
-		st := AliOSS{
-			Endpoint:        config.Endpoint,
-			AccessKeyId:     config.KeyId,
-			AccessKeySecret: config.Secret,
-			BucketName:      config.BucketName,
-			BaseUrl:         config.BaseUrl,
-		}
-		err := st.DownloadFile(cloudFileUrl, localFileUrl)
-		return localFileUrl, err
-	} else if config.Type == "TencentCOS" {
-		st := TencentCOS{
-			BucketURL: config.Endpoint,
-			SecretId:  config.KeyId,
-			SecretKey: config.Secret,
-			BaseUrl:   config.BaseUrl,
-		}
-		err := st.DownloadFile(cloudFileUrl, localFileUrl)
-		return localFileUrl, err
+func New(config Config) StaticCloud {
+	var staticCloud StaticCloud
+	switch config.Type {
+	case "AliOSS":
+		staticCloud = &AliOSS{}
+	case "TencentCOS":
+		staticCloud = &TencentCOS{}
+	default:
+		staticCloud = &Local{}
 	}
-	return localFileUrl, nil
+	staticCloud.InitClient(config)
+	return staticCloud
+}
+
+func MoveFile(fileUrl string, targerUrl string) error {
+	// 检查目标目录是否存在，不存在则创建
+	targerDir := filepath.Dir(targerUrl)
+	if _, err := os.Stat(targerDir); os.IsNotExist(err) {
+		err := os.MkdirAll(targerDir, 0777)
+		if err != nil {
+			return err
+		}
+	}
+	// 移动文件至目标文件夹
+	return os.Rename(fileUrl, targerUrl)
 }

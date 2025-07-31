@@ -51,9 +51,10 @@ func AnalysisTag(node *html.Node, items *[]ContentItem) {
 	parentNode := node.Parent
 	tagType := parentNode.Data
 	// 文本
-	if tagType == "hr" {
+	switch tagType {
+	case "hr":
 		*items = append(*items, ContentItem{Type: "hr", Content: "..."})
-	} else if tagType == "a" {
+	case "a":
 		href := Href(parentNode)
 		*items = append(
 			*items,
@@ -62,7 +63,7 @@ func AnalysisTag(node *html.Node, items *[]ContentItem) {
 				Content: "[" + tagData + "](" + href + ")",
 			},
 		)
-	} else if tagType == "img" || tagType == "video" || tagType == "audio" {
+	case "img", "video", "audio":
 		src := Src(parentNode)
 		*items = append(
 			*items,
@@ -71,7 +72,7 @@ func AnalysisTag(node *html.Node, items *[]ContentItem) {
 				Content: src,
 			},
 		)
-	} else {
+	default:
 		if tagData != "" {
 			*items = append(*items, ContentItem{Type: tagType, Content: tagData})
 		}
