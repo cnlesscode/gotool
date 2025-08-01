@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/cnlesscode/gotool/gmd5"
+	"github.com/cnlesscode/gotool/gintool"
 )
 
 // 单元测试
 
 // 测试命令 : go test -v -run=TestT
 func TestT(t *testing.T) {
-	res := gmd5.Md5("123456")
-	fmt.Printf("res: %v\n", res)
+	AllowTypes := "image/*,image/png,image/gif"
+	fmt.Println(gintool.MatchMimeType(AllowTypes, "image/jpeg"))
 }

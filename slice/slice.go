@@ -10,22 +10,20 @@ import (
 
 // Sort slices randomly []string
 func SortRandomlyString(slice []string) []string {
-	rand.Seed(time.Now().Unix())
-	rand.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
 	return slice
 }
 
-// Sort slices randomly []int
 func SortRandomlyInt(slice []int) []int {
-	rand.Seed(time.Now().Unix())
-	rand.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
 	return slice
 }
 
-// Sort slices randomly []interface{}
 func SortRandomly(slice []interface{}) []interface{} {
-	rand.Seed(time.Now().Unix())
-	rand.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
 	return slice
 }
 

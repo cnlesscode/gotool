@@ -10,18 +10,19 @@ import (
 func TransformItemsToHtml(items []ContentItem) string {
 	var htmlContent string = ""
 	for _, item := range items {
-		if item.Type == "a" {
+		switch item.Type {
+		case "a":
 			var linkArray = strings.Split(item.Content, "](")
 			htmlContent += `<p><a href="` + linkArray[1][0:len(linkArray[1])-1] + `" target="_blank">` + linkArray[0][1:] + `</a><p>`
-		} else if item.Type == "hr" {
+		case "hr":
 			htmlContent += "<p><hr /></p>"
-		} else if item.Type == "img" || item.Type == "image" {
+		case "img", "image":
 			htmlContent += `<img src="` + item.Content + `" />`
-		} else if item.Type == "video" || item.Type == "audio" {
+		case "video", "audio":
 			htmlContent += `<${item.Type} src="` + item.Content + `"></${item.Type}>`
-		} else if item.Type == "p" {
+		case "p":
 			htmlContent += "<p>" + item.Content + "</p>"
-		} else {
+		default:
 			htmlContent += "<p><" + item.Type + ">" + item.Content + "<" + item.Type + "/></p>"
 		}
 	}

@@ -66,9 +66,10 @@ func (dt *DateTime) Now() {
 func (dt *DateTime) Swicth(tp string, val int) *DateTime {
 	dtNew := New()
 	dtNew.InitFromTimeStamp(dt.TimeStamp)
-	if tp == "year" {
+	switch tp {
+	case "year":
 		dtNew.Time = dt.Time.AddDate(val, 0, 0)
-	} else if tp == "month" {
+	case "month":
 		month := val + dt.Month
 		dayMax := dt.CountDaysOfAMonth(month + 1)
 		useDay := dt.Day
@@ -76,13 +77,13 @@ func (dt *DateTime) Swicth(tp string, val int) *DateTime {
 			useDay = dayMax
 		}
 		dtNew.Time = time.Date(dt.Year, time.Month(month), useDay, dt.Hour, dt.Minute, dt.Second, 0, time.Local)
-	} else if tp == "day" {
+	case "day":
 		dtNew.Time = dt.Time.AddDate(0, 0, val)
-	} else if tp == "hour" {
+	case "hour":
 		dtNew.Time = dt.Time.Add(time.Duration(val) * time.Hour)
-	} else if tp == "minute" {
+	case "minute":
 		dtNew.Time = dt.Time.Add(time.Duration(val) * time.Minute)
-	} else if tp == "second" {
+	case "second":
 		dtNew.Time = dt.Time.Add(time.Duration(val) * time.Second)
 	}
 	dtNew.initFromTimeStampBase()
