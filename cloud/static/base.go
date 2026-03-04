@@ -49,6 +49,8 @@ func New(config Config) StaticCloud {
 		staticCloud = &AliOSS{}
 	case "TencentCOS":
 		staticCloud = &TencentCOS{}
+	case "Customize":
+		staticCloud = &Customize{}
 	default:
 		staticCloud = &Local{}
 	}
